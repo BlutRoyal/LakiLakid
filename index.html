@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LakiLakid</title>
+<meta name="theme-color" content="#0d0d0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LakiLakid">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Graduate&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root {
+    --bg: #0d0d0d; --pind: #1a1a1a; --pind2: #232323; --joon: #333; --tekst: #f2f2f2; --tekst2: #9e9e9e;
+    --oranz: #ff9900; --virsik: #f6b26b; --hea: #93c47d; --halb: #e06666; --sinine: #c9daf8;
+    --kuld: #ffd700; --hobe: #c0c0c0; --pronks: #cd7f32;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--tekst);
+    font: 15px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { padding-bottom: 76px; }
+  header { padding: calc(18px + env(safe-area-inset-top)) 16px 10px; background: linear-gradient(180deg, #1f1406 0%, var(--bg) 100%); }
+  .bränd { display: flex; align-items: center; gap: 10px; }
+  .bränd img { width: 52px; height: 52px; flex: none; }
+  .keerleb { animation: keer 1.1s linear infinite; }
+  @keyframes keer { to { transform: rotate(360deg); } }
+  h1 { margin: 0; font: 400 30px/1 'Graduate', 'Rockwell', serif; letter-spacing: 1px;
+    -webkit-text-stroke: 5px #1c3f94; paint-order: stroke fill; text-shadow: 0 2px 0 #0b1a40; }
+  h1 .laki { color: #f7941d; } h1 .lakid { color: #8dc63f; }
+
+  /* Laadimisekraan: logo pall põrkab */
+  #splash { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px; transition: opacity .35s; }
+  #splash.peida { opacity: 0; pointer-events: none; }
+  .porge { position: relative; width: 150px; height: 230px; }
+  .porge img { position: absolute; left: 0; bottom: 30px; width: 150px; height: 150px;
+    animation: porge .9s cubic-bezier(.5,0,.5,1) infinite alternate; transform-origin: 50% 100%; }
+  .porge i { position: absolute; left: 25px; bottom: 14px; width: 100px; height: 16px; border-radius: 50%;
+    background: radial-gradient(rgba(0,0,0,.65), transparent 70%); background-color: rgba(255,153,0,.12);
+    animation: vari .9s cubic-bezier(.5,0,.5,1) infinite alternate; }
+  @keyframes porge {
+    0% { transform: translateY(-80px) rotate(-12deg); }
+    85% { transform: translateY(0) scale(1, 1) rotate(10deg); }
+    100% { transform: translateY(0) scale(1.08, .9) rotate(12deg); } }
+  @keyframes vari { 0% { transform: scale(.55); opacity: .35; } 100% { transform: scale(1); opacity: 1; } }
+  #splash h1 { font-size: 38px; }
+  #splash .uuend { margin-top: -6px; }
+  .uuend { color: var(--tekst2); font-size: 12px; margin-top: 2px; }
+
+  .kpi { display: flex; gap: 8px; margin-top: 12px; }
+  .kpi div { flex: 1; background: var(--pind); border: 1px solid var(--joon); border-radius: 10px; padding: 8px 6px; text-align: center; }
+  .kpi b { display: block; font-size: 18px; color: var(--oranz); }
+  .kpi small { color: var(--tekst2); font-size: 9.5px; white-space: nowrap; text-transform: uppercase; letter-spacing: .5px; }
+  main { padding: 0 16px; max-width: 720px; margin: 0 auto; }
+  .vaade { display: none; } .vaade.aktiivne { display: block; }
+
+  /* Edetabel */
+  .tool { display: flex; gap: 6px; margin: 12px 0 10px; overflow-x: auto; scrollbar-width: none; }
+  .tool::-webkit-scrollbar { display: none; }
+  .chip { flex: none; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--joon); background: var(--pind);
+    color: var(--tekst2); font-size: 13px; cursor: pointer; user-select: none; }
+  .chip.on { background: var(--oranz); color: #111; border-color: var(--oranz); font-weight: 600; }
+  .otsi { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--joon); background: var(--pind);
+    color: var(--tekst); font-size: 15px; outline: none; }
+  .otsi:focus { border-color: var(--oranz); }
+  .rida { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--pind); border-radius: 12px;
+    margin-bottom: 6px; border: 1px solid transparent; cursor: pointer; }
+  .rida:active { border-color: var(--oranz); }
+  .rida.vaike { opacity: .55; }
+  .koht { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px;
+    background: var(--pind2); color: var(--tekst2); flex: none; }
+  .k1 { background: var(--kuld); color: #111; } .k2 { background: var(--hobe); color: #111; } .k3 { background: var(--pronks); color: #111; }
+  .nimi { flex: 1; min-width: 0; }
+  .nimi b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nimi .mvp { color: var(--kuld); font-size: 11px; margin-left: 4px; }
+  .tapid { display: flex; gap: 2px; margin-top: 4px; }
+  .tapid i { width: 7px; height: 7px; border-radius: 50%; background: var(--halb); display: block; }
+  .tapid i.W { background: var(--hea); }
+  .num { text-align: right; flex: none; }
+  .num b { display: block; font-size: 18px; color: var(--oranz); }
+  .num small { color: var(--tekst2); font-size: 11px; white-space: nowrap; }
+  .pais-rida { display: flex; justify-content: space-between; color: var(--tekst2); font-size: 11px; padding: 0 12px 6px;
+    text-transform: uppercase; letter-spacing: .5px; }
+
+  /* Profiil */
+  .valik { display: flex; gap: 8px; align-items: center; margin: 12px 0; }
+  .valik select { flex: 1; padding: 10px; border-radius: 10px; background: var(--pind); color: var(--tekst);
+    border: 1px solid var(--joon); font-size: 15px; }
+  .nupp { width: 42px; height: 42px; border-radius: 10px; border: 1px solid var(--joon); background: var(--pind); color: var(--tekst);
+    font-size: 18px; cursor: pointer; }
+  .hero { background: linear-gradient(135deg, #2a1a05, var(--pind)); border: 1px solid #3a2a10; border-radius: 16px; padding: 16px; }
+  .hero h2 { margin: 0; font-size: 26px; }
+  .hero .alam { color: var(--virsik); font-size: 13px; margin-top: 2px; }
+  .ruudud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+  .ruut { background: rgba(0,0,0,.35); border-radius: 10px; padding: 8px; text-align: center; }
+  .ruut b { display: block; font-size: 19px; }
+  .ruut small { color: var(--tekst2); font-size: 10px; text-transform: uppercase; letter-spacing: .4px; }
+  .ruut .lisa { color: var(--tekst2); font-size: 11px; display: block; }
+  .kaart { background: var(--pind); border-radius: 14px; padding: 14px; margin-top: 12px; }
+  .kaart h3 { margin: 0 0 10px; font-size: 13px; color: var(--virsik); text-transform: uppercase; letter-spacing: .6px; }
+  .kv { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-top: 1px solid var(--pind2); font-size: 14px; }
+  .kv:first-of-type { border-top: 0; }
+  .kv span:first-child { color: var(--tekst2); }
+  .kv span:last-child { text-align: right; }
+  .hea { color: var(--hea); } .halb { color: var(--halb); } .or { color: var(--oranz); }
+  svg text { fill: var(--tekst2); font-size: 17px; }
+  .tyhi { color: var(--tekst2); text-align: center; padding: 40px 0; }
+
+  nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: rgba(20,20,20,.96);
+    border-top: 1px solid var(--joon); padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(8px); }
+  nav button { flex: 1; background: none; border: 0; color: var(--tekst2); padding: 10px 0 12px; font-size: 11px; cursor: pointer; }
+  nav button span { display: block; font-size: 20px; margin-bottom: 2px; }
+  nav button.on { color: var(--oranz); }
+  .toast { position: fixed; bottom: 86px; left: 50%; transform: translateX(-50%); background: #333; color: #fff;
+    padding: 9px 14px; border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
+  .toast.on { opacity: 1; }
+</style>
+</head>
+<body>
+<div id="splash"><div class="porge"><i></i><img src="logo-pall.png" alt=""></div>
+  <h1><span class="laki">LAKI</span><span class="lakid">LAKID</span></h1><div class="uuend" id="splashTekst">Laen statistikat…</div></div>
+<header>
+  <div class="bränd"><img id="logo" src="logo-pall.png" alt="LakiLakid"><h1><span class="laki">LAKI</span><span class="lakid">LAKID</span></h1></div>
+  <div class="uuend" id="uuend"></div>
+  <div class="kpi" id="kpi"></div>
+</header>
+
+<main>
+  <section class="vaade aktiivne" id="v-edetabel">
+    <div class="tool" id="sorteeri"></div>
+    <input class="otsi" id="otsi" placeholder="🔍 Otsi mängijat" autocomplete="off">
+    <div class="pais-rida" style="margin-top:12px"><span>Mängija · viimased 15</span><span id="sortSilt"></span></div>
+    <div id="nimekiri"></div>
+  </section>
+
+  <section class="vaade" id="v-profiil">
+    <div class="valik">
+      <button class="nupp" id="eel">‹</button>
+      <select id="mangija"></select>
+      <button class="nupp" id="jar">›</button>
+    </div>
+    <div id="profiil"></div>
+  </section>
+</main>
+
+<nav>
+  <button class="on" data-v="edetabel"><span>🏆</span>Edetabel</button>
+  <button data-v="profiil"><span>👤</span>Profiil</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+// Apps Scripti veebirakenduse aadress (Deploy → Web app → URL, lõpeb /exec)
+const ANDMED_URL = 'PANE_SIIA_APPS_SCRIPTI_EXEC_LINK';
+let D = null;
+
+const $ = id => document.getElementById(id);
+const pct = (x, k) => x === null || x === undefined ? '–' : (x * 100).toFixed(k || 0) + '%';
+const pr = (w, g) => g ? `${Math.round(w / g * 100)}% <small style="color:var(--tekst2)">(${w}/${g})</small>` : '–';
+const mark = (x, k) => x === null || x === undefined ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '±') + Math.abs(x).toFixed(k || 0);
+const varv = (x, l) => x === null || x === undefined ? '' : x >= (l || 0.0001) ? 'hea' : x <= -(l || 0.0001) ? 'halb' : '';
+const kp = v => v ? v.slice(8, 10) + '.' + v.slice(5, 7) + '.' + v.slice(0, 4) : '–';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 1800); }
+
+// ---------------- EDETABEL ----------------
+const SORT = [
+  { k: 'r', s: 'Ristid', f: x => x.r, n: x => x.r, lisa: x => `${x.t} trenni · ${pct(x.p)}` },
+  { k: 'p', s: 'Võidu %', f: x => x.g >= 20 ? x.p : -1, n: x => pct(x.p), lisa: x => `${x.g} mängu` },
+  { k: 'e', s: 'Elo', f: x => x.e === null ? -1 : x.e, n: x => x.e === null ? '–' : x.e, lisa: x => `vorm ${mark(x.v)}` },
+  { k: 'v', s: 'Vorm 🔥', f: x => x.v === null ? -999 : x.v, n: x => mark(x.v), lisa: x => `Elo ${x.e === null ? '–' : x.e}` },
+  { k: 't', s: 'Trenne', f: x => x.t, n: x => x.t, lisa: x => `${x.r} risti` }
+];
+let sort = SORT[0], otsing = '';
+
+function init() {
+  $('sorteeri').innerHTML = SORT.map((s, i) => `<div class="chip${i ? '' : ' on'}" data-i="${i}">${s.s}</div>`).join('');
+  $('sorteeri').onclick = e => {
+    const c = e.target.closest('.chip'); if (!c) return;
+    sort = SORT[c.dataset.i];
+    document.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === c));
+    joonistaTabel();
+  };
+  $('otsi').oninput = e => { otsing = e.target.value.trim().toLowerCase(); joonistaTabel(); };
+  $('nimekiri').onclick = e => {
+    const r = e.target.closest('.rida'); if (!r) return;
+    if (D.profiil[r.dataset.n]) avaProfiil(r.dataset.n);
+    else toast('Profiil on TOP 25 mängijal');
+  };
+  document.querySelector('nav').onclick = e => { const b = e.target.closest('button'); if (b) vaade(b.dataset.v); };
+
+  const nimed = Object.keys(D.profiil).sort((a, b) => D.profiil[a].k - D.profiil[b].k);
+  $('mangija').innerHTML = nimed.map(n => `<option value="${esc(n)}">${D.profiil[n].k}. ${esc(n)}</option>`).join('');
+  $('mangija').onchange = e => joonistaProfiil(e.target.value);
+  const astu = d => { const i = nimed.indexOf($('mangija').value); const j = (i + d + nimed.length) % nimed.length; avaProfiil(nimed[j], true); };
+  $('eel').onclick = () => astu(-1);
+  $('jar').onclick = () => astu(1);
+  let x0 = null;
+  $('profiil').addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  $('profiil').addEventListener('touchend', e => {
+    if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 70) astu(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  joonistaTabel();
+  joonistaProfiil(nimed[0]);
+}
+
+function joonistaTabel() {
+  $('sortSilt').textContent = sort.s;
+  const read = D.tabel.filter(x => !otsing || x.n.toLowerCase().includes(otsing))
+    .slice().sort((a, b) => sort.f(b) - sort.f(a) || a.k - b.k);
+  $('nimekiri').innerHTML = read.map((x, i) => {
+    const koht = sort.k === 'r' ? x.k : i + 1;
+    const kl = !otsing && koht <= 3 ? ' k' + koht : '';
+    const tapid = x.l15.split('').map(c => `<i class="${c}"></i>`).join('');
+    const vaike = (sort.k === 'p' && x.g < 20) || (sort.k === 'e' && x.e === null);
+    return `<div class="rida${vaike ? ' vaike' : ''}" data-n="${esc(x.n)}">
+      <div class="koht${kl}">${koht}</div>
+      <div class="nimi"><b>${esc(x.n)}${x.mvp ? `<span class="mvp">${'★'.repeat(Math.min(x.mvp, 5))}</span>` : ''}</b>
+        <div class="tapid">${tapid}</div></div>
+      <div class="num"><b class="${sort.k === 'v' ? varv(x.v) : ''}">${sort.n(x)}</b><small>${sort.lisa(x)}</small></div>
+    </div>`;
+  }).join('') || '<div class="tyhi">Ei leitud</div>';
+  if (sort.k === 'p') $('nimekiri').insertAdjacentHTML('beforeend', '<div class="uuend" style="text-align:center;margin:8px 0">Võidu % järjestuses min 20 mängu</div>');
+}
+
+// ---------------- PROFIIL ----------------
+function vaade(v) {
+  document.querySelectorAll('.vaade').forEach(x => x.classList.toggle('aktiivne', x.id === 'v-' + v));
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  window.scrollTo(0, 0);
+}
+function avaProfiil(n, jaa) { $('mangija').value = n; joonistaProfiil(n); if (!jaa) vaade('profiil'); else window.scrollTo(0, 0); }
+
+function kv(silt, vaartus) { return `<div class="kv"><span>${silt}</span><span>${vaartus}</span></div>`; }
+function kaart(pealkiri, sisu) { return `<div class="kaart"><h3>${pealkiri}</h3>${sisu}</div>`; }
+
+function eloGraafik(p) {
+  const pts = p.elo;
+  if (!pts || pts.length < 3) return '<div class="uuend">Elo graafikuks on veel vähe mänge.</div>';
+  const W = 640, H = 220, P = { l: 52, r: 12, t: 14, b: 28 };
+  const ys = pts.map(x => x[1]);
+  let min = Math.min.apply(null, ys), max = Math.max.apply(null, ys);
+  min = Math.floor((Math.min(min, 1000) - 10) / 25) * 25; max = Math.ceil((Math.max(max, 1000) + 10) / 25) * 25;
+  const x = i => P.l + i / (pts.length - 1) * (W - P.l - P.r);
+  const y = v => P.t + (max - v) / (max - min) * (H - P.t - P.b);
+  const tee = pts.map((q, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(q[1]).toFixed(1)}`).join('');
+  const ala = `${tee}L${x(pts.length - 1).toFixed(1)},${H - P.b}L${P.l},${H - P.b}Z`;
+  const tipp = ys.indexOf(Math.max.apply(null, ys));
+  const viim = pts.length - 1;
+  const jooned = [min, (min + max) / 2, max].map(v =>
+    `<line x1="${P.l}" x2="${W - P.r}" y1="${y(v)}" y2="${y(v)}" stroke="#2a2a2a"/><text x="${P.l - 5}" y="${y(v) + 3}" text-anchor="end">${Math.round(v)}</text>`).join('');
+  const algus = `<line x1="${P.l}" x2="${W - P.r}" y1="${y(1000)}" y2="${y(1000)}" stroke="#555" stroke-dasharray="3 4"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Elo ajas">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9900" stop-opacity=".35"/><stop offset="1" stop-color="#ff9900" stop-opacity="0"/></linearGradient></defs>
+    ${jooned}${algus}
+    <path d="${ala}" fill="url(#g)"/><path d="${tee}" fill="none" stroke="#ff9900" stroke-width="2.2" stroke-linejoin="round"/>
+    <circle cx="${x(tipp)}" cy="${y(ys[tipp])}" r="3.5" fill="#ffd700"/>
+    <circle cx="${x(viim)}" cy="${y(ys[viim])}" r="4.5" fill="#ff9900" stroke="#0d0d0d" stroke-width="2"/>
+    <text x="${P.l}" y="${H - 6}">${kp(pts[1][0])}</text><text x="${W - P.r}" y="${H - 6}" text-anchor="end">${kp(pts[viim][0])}</text>
+  </svg><div class="uuend">● tipp ${p.et} · katkendjoon = algus 1000</div>`;
+}
+
+function joonistaProfiil(n) {
+  const p = D.profiil[n];
+  if (!p) return;
+  const tapid = p.l15.split('').map(c => `<i class="${c}" style="width:10px;height:10px"></i>`).join('');
+  const sr = p.sr && p.sr !== '-' ? `<span class="${p.sr[0] === 'W' ? 'hea' : 'halb'}">${p.sr}</span>` : '–';
+  let h = `<div class="hero">
+    <h2>${esc(p.n)} ${p.mvp ? `<span style="color:var(--kuld);font-size:16px">${'★'.repeat(p.mvp)}</span>` : ''}</h2>
+    <div class="alam">#${p.k} edetabelis · ${p.r} risti${p.b ? ` (sh boonus ${p.b})` : ''}</div>
+    <div class="ruudud">
+      <div class="ruut"><b class="or">${pct(p.p)}</b><small>Võidu %</small><span class="lisa">silutud ${pct(p.ps)}</span></div>
+      <div class="ruut"><b>${p.e === null ? '–' : p.e}</b><small>Elo</small><span class="lisa">tipp ${p.et === null ? '–' : p.et}</span></div>
+      <div class="ruut"><b class="${varv(p.ev)}">${mark(p.ev)}</b><small>Vorm</small><span class="lisa">viim. 5 trenni</span></div>
+      <div class="ruut"><b>${p.t}</b><small>Trenne</small><span class="lisa">osalus ${pct(p.os)}</span></div>
+      <div class="ruut"><b>${sr}</b><small>Seeria</small><span class="lisa">pikim W${p.mxW} / L${p.mxL}</span></div>
+      <div class="ruut"><b>${p.kj}</b><small>Järjest kohal</small><span class="lisa">rekord ${p.kj > p.km ? p.kj : p.km}</span></div>
+    </div>
+    <div class="tapid" style="margin-top:12px;gap:4px">${tapid}</div>
+    <div class="uuend">viimased 15 mängu · ${p.w}/${p.g} võitu kokku</div>
+  </div>`;
+
+  h += kaart('📈 Elo ajas', eloGraafik(p));
+
+  const nd = p.nd.length ? `${p.nd[0].d} ${Math.round(p.nd[0].w / p.nd[0].g * 100)}%` + (p.nd.length > 1 ? ` · halvim ${p.nd[p.nd.length - 1].d} ${Math.round(p.nd[p.nd.length - 1].w / p.nd[p.nd.length - 1].g * 100)}%` : '') : '–';
+  h += kaart('🎯 Mõju ja päevad',
+    kv('Clutch (päeva 3. mäng)', p.m3.g ? `${pr(p.m3.w, p.m3.g)} · <span class="${varv(p.m3.i, 0.02)}">${mark(p.m3.i === null ? null : p.m3.i * 100)}%</span>` : '–') +
+    kv('Hele särk', pr(p.he.w, p.he.g)) + kv('Tume särk', pr(p.tu.w, p.tu.g)) +
+    kv('Parim päev', nd) +
+    kv('Underdogina (Elo šanss &lt; 45%)', p.ud ? pr(p.ud.w, p.ud.g) : '–') +
+    kv('Päevad: 100% / plussis / viik', `${p.pt.d100} / ${p.pt.dPlus} / ${p.pt.dEq}`) +
+    kv('Päevad: miinuses / 0%', `${p.pt.dMinus} / ${p.pt.d0}`) +
+    kv('Kõikumatus (päevi ≥ 1 võiduga)', pct(p.ko)) +
+    kv('Viimati käinud', `${kp(p.vi)}${p.vah ? ` · ${p.vah} trenni vahele` : ''}`));
+
+  h += kaart('🤝 Kaaslased ja sünergia',
+    kv('Enim koos', p.kaas.length ? p.kaas.map(x => `${esc(x.n)} (${x.g})`).join(' · ') : '–') +
+    kv('Parim DUO', p.duo ? `${esc(p.duo.n)} · <span class="${varv(p.duo.m, 0.02)}">${mark(p.duo.m * 100)}%</span> (${p.duo.w}/${p.duo.g})` : '–') +
+    kv('Parim TRIO', p.trio ? `${esc(p.trio.n)} · <span class="${varv(p.trio.m, 0.02)}">${mark(p.trio.m * 100)}%</span> (${p.trio.w}/${p.trio.g})` : '–') +
+    '<div class="uuend" style="margin-top:6px">Keemia = mitu % rohkem võite kui Elo järgi oodata.</div>');
+
+  const loend = (l, f) => l.length ? l.map(f).join('<br>') : '–';
+  h += kaart('⚔️ Rivaalid',
+    kv('Suurimad rivaalid', loend(p.riv, x => `${esc(x.n)} <span class="halb">${Math.round(x.l / x.g * 100)}% kaotusi</span> (${x.l}/${x.g})`)) +
+    kv('Rivaal üle ootuse', p.rivOE ? `${esc(p.rivOE.n)} <span class="halb">+${Math.round(p.rivOE.m * 100)}%</span>` : '–') +
+    kv('Lemmikvastased', loend(p.lem, x => `${esc(x.n)} <span class="hea">${Math.round(x.w / x.g * 100)}% võite</span> (${x.w}/${x.g})`)) +
+    kv('Lemmik üle ootuse', p.lemOE ? `${esc(p.lemOE.n)} <span class="hea">+${Math.round(p.lemOE.m * 100)}%</span>` : '–'));
+
+  if (p.sk) h += kaart('🏁 Lõppskoorid',
+    kv('Skooriga mänge', `${p.sk.g} (võite ${p.sk.w})`) +
+    kv('+/- mängu kohta', `<span class="${varv(p.sk.pm, 1)}">${mark(p.sk.pm, 1)}</span>`) +
+    kv('Napid mängud (W-L)', p.sk.nG ? `${p.sk.nW}-${p.sk.nG - p.sk.nW}` : '–') +
+    kv('🔥 Andis leili', p.sk.la) + kv('🧖 Sai sauna', p.sk.sa));
+
+  $('profiil').innerHTML = h;
+}
+
+// ---------------- START ----------------
+// 1) Näita kohe viimati laaditud andmeid (telefoni mälust), 2) too värsked taustal.
+let alustatud = false;
+function naita(andmed, vaade) {
+  D = andmed;
+  $('uuend').innerHTML = `Uuendatud ${D.uuendatud} · viimane trenn ${kp(D.viimane)}`;
+  $('logo').classList.toggle('keerleb', !!vaade);
+  $('splash').classList.add('peida');
+  $('kpi').innerHTML = [['Trenne', D.trenne], ['Mänge', D.mange], ['Hele–Tume', `${D.heleW}–${D.tumeW}`], ['Elo täpsus', pct(D.tapsus)]]
+    .map(x => `<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
+  if (!alustatud) { alustatud = true; init(); return; }
+  const n = $('mangija').value;
+  const nimed = Object.keys(D.profiil).sort((a, b) => D.profiil[a].k - D.profiil[b].k);
+  $('mangija').innerHTML = nimed.map(x => `<option value="${esc(x)}">${D.profiil[x].k}. ${esc(x)}</option>`).join('');
+  joonistaTabel();
+  joonistaProfiil(D.profiil[n] ? n : nimed[0]);
+  if (D.profiil[n]) $('mangija').value = n;
+}
+let vana = null;
+try { vana = JSON.parse(localStorage.getItem('korvpall')); } catch (e) { }
+if (vana) naita(vana, true);
+fetch(ANDMED_URL, { cache: 'no-store' })
+  .then(r => r.json())
+  .then(uus => {
+    if (!uus) throw new Error('tühi');
+    try { localStorage.setItem('korvpall', JSON.stringify(uus)); } catch (e) { }
+    naita(uus, false);
+  })
+  .catch(() => {
+    $('logo').classList.remove('keerleb');
+    if (vana) { $('uuend').innerHTML = `Uuendatud ${D.uuendatud} · <span class="halb">võrguühendus puudub</span>`; }
+    else $('splashTekst').innerHTML = '<span class="halb">Andmeid ei saanud laadida.</span><br>Kontrolli internetti või ANDMED_URL aadressi.';
+  });
+</script>
+</body>
+</html>
