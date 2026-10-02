@@ -117,6 +117,25 @@
   nav button { flex: 1; background: none; border: 0; color: var(--tekst2); padding: 10px 0 12px; font-size: 11px; cursor: pointer; }
   nav button span { display: block; font-size: 20px; margin-bottom: 2px; }
   nav button.on { color: var(--oranz); }
+  /* Kuu */
+  .kuu-hero { background: linear-gradient(135deg, #2a1a05, #1a1a1a 60%, #142a10); border: 1px solid #3a2a10; border-radius: 16px;
+    padding: 16px; margin-top: 12px; }
+  .kuu-hero h2 { margin: 0; font: 400 24px/1.1 'Graduate', serif; color: var(--kuld); }
+  .auhinnad { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .auh { background: var(--pind); border-radius: 14px; padding: 12px; border: 1px solid var(--joon); cursor: pointer; }
+  .auh.esim { grid-column: 1 / -1; background: linear-gradient(135deg, #3a2a08, var(--pind)); border-color: #5a4210; }
+  .auh .ik { font-size: 26px; }
+  .auh .t { font-size: 11px; color: var(--virsik); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-top: 4px; }
+  .auh .v { font-size: 19px; font-weight: 800; margin-top: 4px; }
+  .auh .v small { color: var(--oranz); font-weight: 600; font-size: 13px; margin-left: 4px; }
+  .auh .k { color: var(--tekst2); font-size: 11px; margin-top: 2px; }
+  .auh .jargm { color: var(--tekst2); font-size: 12px; margin-top: 6px; border-top: 1px solid var(--pind2); padding-top: 5px; }
+  .ktab { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ktab th { color: var(--tekst2); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; text-align: right; padding: 4px 6px; font-weight: 600; }
+  .ktab td { padding: 9px 6px; border-top: 1px solid var(--pind2); text-align: right; }
+  .ktab td:nth-child(2), .ktab th:nth-child(2) { text-align: left; }
+  .ktab td:first-child { color: var(--tekst2); width: 26px; }
+  .ktab tr { cursor: pointer; }
   /* Admin */
   .adm-riba { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 0; color: var(--tekst2); font-size: 13px; }
   .link { color: var(--virsik); cursor: pointer; text-decoration: underline; font-size: 13px; }
@@ -195,13 +214,16 @@
     <div id="profiil"></div>
   </section>
 
+  <section class="vaade" id="v-kuu"><div id="kuu"></div></section>
+
   <section class="vaade" id="v-admin"><div id="admin"></div></section>
 </main>
 
 <nav>
   <button class="on" data-v="edetabel"><span>🏆</span>Edetabel</button>
   <button data-v="profiil"><span>👤</span>Profiil</button>
-  <button data-v="admin"><span>⚙️</span>Admin</button>
+  <button data-v="kuu"><span>🗓️</span>Kuu</button>
+  <button data-v="admin" id="adminNupp" style="display:none"><span>⚙️</span>Admin</button>
 </nav>
 <div class="toast" id="toast"></div>
 
@@ -284,6 +306,7 @@ function joonistaTabel() {
 // ---------------- PROFIIL ----------------
 function vaade(v) {
   if (v === 'admin') joonistaAdmin();
+  if (v === 'kuu') joonistaKuu();
   document.querySelectorAll('.vaade').forEach(x => x.classList.toggle('aktiivne', x.id === 'v-' + v));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   window.scrollTo(0, 0);
@@ -372,6 +395,26 @@ function joonistaProfiil(n) {
     kv('🔥 Andis leili', p.sk.la) + kv('🧖 Sai sauna', p.sk.sa));
 
   $('profiil').innerHTML = h;
+}
+
+// ---------------- KUU ----------------
+const KUUD = ['jaanuar', 'veebruar', 'märts', 'aprill', 'mai', 'juuni', 'juuli', 'august', 'september', 'oktoober', 'november', 'detsember'];
+const kuuNimi = k => KUUD[Number(k.slice(5, 7)) - 1] + ' ' + k.slice(0, 4);
+function joonistaKuu() {
+  const K = D && D.kuu;
+  if (!K) { $('kuu').innerHTML = '<div class="tyhi">Kuu andmeid veel pole.</div>'; return; }
+  let h = `<div class="kuu-hero"><h2>${K.jooksev ? '🏆 MVP-JAHT' : '🏆 KUU MVP'}</h2>
+    <div class="alam" style="color:var(--virsik);margin-top:4px">${kuuNimi(K.kuu)} · ${K.trenne} trenni${K.jooksev ? ' · käib veel' : ''}</div>
+    ${K.eelmine ? `<div class="uuend" style="margin-top:8px">Eelmise kuu (${kuuNimi(K.eelmine.kuu)}) MVP: <b style="color:var(--kuld)">${K.eelmine.mvp.map(esc).join(', ')}</b> · ${K.eelmine.r} risti</div>` : ''}</div>`;
+  h += '<div class="auhinnad">' + K.auhinnad.map((a, i) => `<div class="auh${i === 0 ? ' esim' : ''}" data-n="${esc(a.l[0].n)}">
+      <div class="ik">${a.i}</div><div class="t">${esc(a.t)}</div>
+      <div class="v">${esc(a.l[0].n)}<small>${esc(a.l[0].s)}</small></div><div class="k">${esc(a.k)}</div>
+      ${a.l.length > 1 ? `<div class="jargm">${a.l.slice(1).map((x, j) => `${j + 2}. ${esc(x.n)} <span style="color:var(--oranz)">${esc(x.s)}</span>`).join(' · ')}</div>` : ''}
+    </div>`).join('') + '</div>';
+  h += kaart(`📋 ${kuuNimi(K.kuu)} – ristid`, `<table class="ktab"><tr><th>#</th><th>Mängija</th><th>Ristid</th><th>Trenne</th><th>Võidu %</th><th>Elo ±</th></tr>
+    ${K.tabel.map((x, i) => `<tr data-n="${esc(x.n)}"><td>${i + 1}</td><td><b>${esc(x.n)}</b></td><td class="or"><b>${x.r}</b></td><td>${x.t}</td>
+      <td>${x.g ? Math.round(x.w / x.g * 100) + '%' : '–'}</td><td class="${varv(x.e)}">${x.e === null ? '–' : mark(x.e)}</td></tr>`).join('')}</table>`);
+  $('kuu').innerHTML = h;
 }
 
 // ---------------- ADMIN (trenni sisestus) ----------------
@@ -583,7 +626,7 @@ function adminKlikk(e) {
   const a = b.dataset.a, i = Number(b.dataset.i), n = b.dataset.n;
   const m = T.mangud && T.mangud[i];
   switch (a) {
-    case 'valja': if (confirm('Logi välja?')) { admin = null; localStorage.removeItem(A_KEY); } break;
+    case 'valja': if (confirm('Logi välja?')) { admin = null; localStorage.removeItem(A_KEY); if (location.hash !== '#admin') $('adminNupp').style.display = 'none'; } break;
     case 'uus': T = uusTrenn(); break;
     case 'tiime': T.tiime = Number(b.dataset.n); break;
     case 'kohal': { const j = T.kohal.indexOf(n); if (j >= 0) T.kohal.splice(j, 1); else T.kohal.push(n); break; }
@@ -620,6 +663,14 @@ function adminMuutus(e) {
   salvestaMustand();
 }
 function initAdmin() {
+  // Admin vahekaart on peidus: nähtav ainult sisse loginud telefonis või lingiga …/LakiLakid/#admin
+  if (admin || location.hash === '#admin') $('adminNupp').style.display = '';
+  if (location.hash === '#admin') setTimeout(() => vaade('admin'), 0);
+  window.addEventListener('hashchange', () => { if (location.hash === '#admin') { $('adminNupp').style.display = ''; vaade('admin'); } });
+  $('kuu').addEventListener('click', e => {
+    const r = e.target.closest('[data-n]'); if (!r) return;
+    if (D.profiil[r.dataset.n]) avaProfiil(r.dataset.n); else toast('Profiil on TOP 25 mängijal');
+  });
   $('admin').addEventListener('click', adminKlikk);
   $('admin').addEventListener('change', adminMuutus);
   $('admin').addEventListener('input', e => { if (e.target.dataset.a === 'sk') adminMuutus(e); });
@@ -644,6 +695,7 @@ function naita(andmed, vaade) {
   const nimed = Object.keys(D.profiil).sort((a, b) => D.profiil[a].k - D.profiil[b].k);
   $('mangija').innerHTML = nimed.map(x => `<option value="${esc(x)}">${D.profiil[x].k}. ${esc(x)}</option>`).join('');
   joonistaTabel();
+  joonistaKuu();
   joonistaProfiil(D.profiil[n] ? n : nimed[0]);
   if (D.profiil[n]) $('mangija').value = n;
 }
