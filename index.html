@@ -666,6 +666,12 @@ function initAdmin() {
   // Admin vahekaart on peidus: nähtav ainult sisse loginud telefonis või lingiga …/LakiLakid/#admin
   if (admin || location.hash === '#admin') $('adminNupp').style.display = '';
   if (location.hash === '#admin') setTimeout(() => vaade('admin'), 0);
+  // Peidetud sissepääs (nt iPhone'i avakuva äpis, kus #admin linki ei saa avada): puuduta logo 5 korda
+  let kopp = 0, koppAeg = 0;
+  $('logo').addEventListener('click', () => {
+    const nyyd = Date.now(); kopp = nyyd - koppAeg < 800 ? kopp + 1 : 1; koppAeg = nyyd;
+    if (kopp >= 5) { kopp = 0; $('adminNupp').style.display = ''; vaade('admin'); }
+  });
   window.addEventListener('hashchange', () => { if (location.hash === '#admin') { $('adminNupp').style.display = ''; vaade('admin'); } });
   $('kuu').addEventListener('click', e => {
     const r = e.target.closest('[data-n]'); if (!r) return;
