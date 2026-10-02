@@ -679,6 +679,14 @@ function initAdmin() {
 }
 
 // ---------------- START ----------------
+// Laadimisekraan (põrkav pall) on näha iga avamisel vähemalt SPLASH_MS, ka siis, kui andmed on juba telefonis.
+const SPLASH_MS = 2500, splashAlgus = Date.now();
+let splashPeidetud = false;
+function peidaSplash() {
+  if (splashPeidetud) return; splashPeidetud = true;
+  setTimeout(() => $('splash').classList.add('peida'), Math.max(0, SPLASH_MS - (Date.now() - splashAlgus)));
+}
+$('splash').addEventListener('click', () => { if (D) $('splash').classList.add('peida'); });
 document.querySelector('nav').onclick = e => { const b = e.target.closest('button'); if (b) vaade(b.dataset.v); };
 initAdmin();
 // 1) Näita kohe viimati laaditud andmeid (telefoni mälust), 2) too värsked taustal.
@@ -687,7 +695,7 @@ function naita(andmed, vaade) {
   D = andmed;
   $('uuend').innerHTML = `Uuendatud ${D.uuendatud} · viimane trenn ${kp(D.viimane)}`;
   $('logo').classList.toggle('keerleb', !!vaade);
-  $('splash').classList.add('peida');
+  peidaSplash();
   $('kpi').innerHTML = [['Trenne', D.trenne], ['Mänge', D.mange], ['Hele–Tume', `${D.heleW}–${D.tumeW}`], ['Elo täpsus', pct(D.tapsus)]]
     .map(x => `<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
   if (!alustatud) { alustatud = true; init(); return; }
