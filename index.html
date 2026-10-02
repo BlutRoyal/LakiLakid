@@ -117,6 +117,53 @@
   nav button { flex: 1; background: none; border: 0; color: var(--tekst2); padding: 10px 0 12px; font-size: 11px; cursor: pointer; }
   nav button span { display: block; font-size: 20px; margin-bottom: 2px; }
   nav button.on { color: var(--oranz); }
+  /* Admin */
+  .adm-riba { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 0; color: var(--tekst2); font-size: 13px; }
+  .link { color: var(--virsik); cursor: pointer; text-decoration: underline; font-size: 13px; }
+  .suur { width: 100%; padding: 15px; border-radius: 12px; border: 0; background: var(--oranz); color: #111; font-size: 16px;
+    font-weight: 700; cursor: pointer; margin-top: 12px; }
+  .suur:disabled { opacity: .4; }
+  .suur.hall { background: var(--pind2); color: var(--tekst); border: 1px solid var(--joon); }
+  .suur.salvesta { background: var(--hea); font-size: 18px; padding: 18px; margin-top: 16px; }
+  .nupurida { display: flex; gap: 8px; } .nupurida .suur { flex: 1; }
+  .rida2 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  input[type=date].otsi { color-scheme: dark; }
+  .seg { display: flex; border: 1px solid var(--joon); border-radius: 10px; overflow: hidden; }
+  .seg button { background: var(--pind2); color: var(--tekst2); border: 0; padding: 9px 16px; font-size: 15px; cursor: pointer; }
+  .seg button.on { background: var(--oranz); color: #111; font-weight: 700; }
+  .lyliti { color: var(--tekst2); font-size: 14px; display: flex; align-items: center; gap: 6px; margin-left: auto; }
+  .lyliti input { width: 20px; height: 20px; accent-color: var(--oranz); }
+  .nimed { display: flex; flex-wrap: wrap; gap: 7px; }
+  .nimi-chip { padding: 10px 13px; border-radius: 999px; border: 1px solid var(--joon); background: var(--pind2); color: var(--tekst);
+    font-size: 15px; cursor: pointer; }
+  .nimi-chip.on { background: var(--oranz); color: #111; border-color: var(--oranz); font-weight: 700; }
+  .mang { background: var(--pind); border-radius: 14px; padding: 12px; margin-top: 12px; border: 2px solid transparent; }
+  .mang.tehtud { border-color: #2e4a25; }
+  .mang-pais { display: flex; gap: 10px; align-items: baseline; margin-bottom: 8px; }
+  .mang-pais .link { margin-left: auto; }
+  .tiimid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tiim { border-radius: 10px; padding: 6px 8px 8px; min-height: 60px; }
+  .tiim.H { background: #f4f4f4; color: #111; } .tiim.T { background: #2f5fb3; color: #fff; }
+  .tiim-pais { font-size: 10px; font-weight: 700; letter-spacing: 1px; opacity: .6; margin-bottom: 2px; }
+  .tn { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 15px; font-weight: 600; }
+  .tn span b { display: inline-block; width: 30px; height: 28px; line-height: 28px; text-align: center; border-radius: 8px;
+    background: rgba(0,0,0,.15); margin-left: 4px; cursor: pointer; font-weight: 400; }
+  .lisa-sel { width: 100%; margin-top: 6px; padding: 7px; border-radius: 8px; border: 1px dashed rgba(0,0,0,.3); background: transparent;
+    color: inherit; font-size: 14px; }
+  .tiim.T .lisa-sel { border-color: rgba(255,255,255,.4); } .lisa-sel option { color: #111; }
+  .voit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .voit button { padding: 16px 6px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; border: 2px solid var(--joon);
+    background: var(--pind2); color: var(--tekst2); }
+  .voit .vH.on { background: #fff; color: #111; border-color: var(--kuld); }
+  .voit .vT.on { background: #2f5fb3; color: #fff; border-color: var(--kuld); }
+  .skoor { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--tekst2); font-size: 13px; }
+  .skoor input { width: 64px; padding: 9px; border-radius: 9px; border: 1px solid var(--joon); background: var(--pind2); color: var(--tekst);
+    font-size: 17px; text-align: center; }
+  details.kaart summary { cursor: pointer; list-style: none; } details.kaart summary::-webkit-details-marker { display: none; }
+  details.kaart[open] summary { margin-bottom: 8px; }
+  .stepper { display: flex; align-items: center; gap: 10px; }
+  .stepper button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--joon); background: var(--pind2); color: var(--tekst);
+    font-size: 18px; cursor: pointer; }
   .toast { position: fixed; bottom: 86px; left: 50%; transform: translateX(-50%); background: #333; color: #fff;
     padding: 9px 14px; border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity .2s; pointer-events: none; }
   .toast.on { opacity: 1; }
@@ -147,17 +194,20 @@
     </div>
     <div id="profiil"></div>
   </section>
+
+  <section class="vaade" id="v-admin"><div id="admin"></div></section>
 </main>
 
 <nav>
   <button class="on" data-v="edetabel"><span>🏆</span>Edetabel</button>
   <button data-v="profiil"><span>👤</span>Profiil</button>
+  <button data-v="admin"><span>⚙️</span>Admin</button>
 </nav>
 <div class="toast" id="toast"></div>
 
 <script>
 // Apps Scripti veebirakenduse aadress (Deploy → Web app → URL, lõpeb /exec)
-const ANDMED_URL = 'https://script.google.com/macros/s/AKfycbz__M23-PdR3OpJ5wMm3T_XRS-gf0Luxk9Dk17Emr-Kl6e8B8EK7ciLq_6A_BUaDs0u/exec';
+const ANDMED_URL = 'PANE_SIIA_APPS_SCRIPTI_EXEC_LINK';
 let D = null;
 
 const $ = id => document.getElementById(id);
@@ -193,7 +243,7 @@ function init() {
     if (D.profiil[r.dataset.n]) avaProfiil(r.dataset.n);
     else toast('Profiil on TOP 25 mängijal');
   };
-  document.querySelector('nav').onclick = e => { const b = e.target.closest('button'); if (b) vaade(b.dataset.v); };
+
 
   const nimed = Object.keys(D.profiil).sort((a, b) => D.profiil[a].k - D.profiil[b].k);
   $('mangija').innerHTML = nimed.map(n => `<option value="${esc(n)}">${D.profiil[n].k}. ${esc(n)}</option>`).join('');
@@ -233,6 +283,7 @@ function joonistaTabel() {
 
 // ---------------- PROFIIL ----------------
 function vaade(v) {
+  if (v === 'admin') joonistaAdmin();
   document.querySelectorAll('.vaade').forEach(x => x.classList.toggle('aktiivne', x.id === 'v-' + v));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   window.scrollTo(0, 0);
@@ -323,7 +374,262 @@ function joonistaProfiil(n) {
   $('profiil').innerHTML = h;
 }
 
+// ---------------- ADMIN (trenni sisestus) ----------------
+const A_KEY = 'lakid-admin', T_KEY = 'lakid-trenn';
+const PAARID = { 3: [[0, 1], [0, 2], [1, 2]], 4: [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]] };
+let admin = null, T = null;
+try { admin = JSON.parse(localStorage.getItem(A_KEY)); } catch (e) { }
+try { T = JSON.parse(localStorage.getItem(T_KEY)); } catch (e) { }
+
+const tana = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+function uusTrenn() { return { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), kp: tana(), tiime: 2, elo: false, kohal: [], lisa: {}, mangud: [], tiimid: null, faas: 'kohal', paranda: false }; }
+if (!T) T = uusTrenn();
+function salvestaMustand() { try { localStorage.setItem(T_KEY, JSON.stringify(T)); } catch (e) { } }
+
+async function post(keha) {
+  const r = await fetch(ANDMED_URL, { method: 'POST', body: JSON.stringify(keha), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
+  return r.json();
+}
+
+// --- loos (sama loogika mis Trenn lehel)
+const sega = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const pv = (a, b) => a < b ? a + '|' + b : b + '|' + a;
+function paarid(mangud) {
+  const k = {};
+  mangud.forEach(m => [m.hele, m.tume].forEach(t => { for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) k[pv(t[i], t[j])] = (k[pv(t[i], t[j])] || 0) + 1; }));
+  return k;
+}
+function kordus(t, k) { let s = 0; for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) { const x = k[pv(t[i], t[j])] || 0; s += x * x; } return s; }
+function eloKaart() { const r = {}; (D ? D.tabel : []).forEach(x => { if (x.e !== null) r[x.n] = x.e; }); return r; }
+const tElo = (t, r) => t.length ? t.reduce((s, n) => s + (r[n] === undefined ? 1000 : r[n]), 0) / t.length : 1000;
+function segaKaheks(nimed, eel, elo) {
+  const k = paarid(eel), suur = Math.ceil(nimed.length / 2);
+  let parim = null, pS = Infinity;
+  for (let i = 0; i < 3000; i++) {
+    const s = sega(nimed), a = s.slice(0, suur), b = s.slice(suur);
+    let x = kordus(a, k) + kordus(b, k);
+    if (elo) x += Math.abs(tElo(a, elo) - tElo(b, elo)) / 10;
+    if (x < pS) { pS = x; parim = [a, b]; }
+  }
+  return Math.random() < 0.5 ? parim : [parim[1], parim[0]];
+}
+function jagaTiimideks(nimed, arv, eel, elo) {
+  const k = paarid(eel);
+  let parim = null, pS = Infinity;
+  for (let i = 0; i < 3000; i++) {
+    const s = sega(nimed), t = Array.from({ length: arv }, () => []);
+    s.forEach((n, j) => t[j % arv].push(n));
+    let x = t.reduce((a, y) => a + kordus(y, k), 0);
+    if (elo) { const r = t.map(y => tElo(y, elo)); x += (Math.max(...r) - Math.min(...r)) / 10; }
+    if (x < pS) { pS = x; parim = t; }
+  }
+  return sega(parim);
+}
+const uusMang = (hele, tume, silt) => ({ hele: hele.slice(), tume: tume.slice(), v: null, skH: '', skT: '', silt: silt || '' });
+function lisaRing() {
+  const t = jagaTiimideks(T.kohal, T.tiime, T.mangud, T.elo ? eloKaart() : null);
+  T.tiimid = t;
+  PAARID[T.tiime].forEach(p => T.mangud.push(uusMang(t[p[0]], t[p[1]], `T${p[0] + 1} – T${p[1] + 1}`)));
+}
+function lisaKaheMang() { const t = segaKaheks(T.kohal, T.mangud, T.elo ? eloKaart() : null); T.mangud.push(uusMang(t[0], t[1])); }
+
+function loosi() {
+  if (T.kohal.length < 4) return toast('Vali vähemalt 4 mängijat');
+  if (T.tiime > 2 && T.kohal.length < T.tiime * 2) return toast(`${T.tiime} tiimi jaoks on vaja vähemalt ${T.tiime * 2} mängijat`);
+  if (T.mangud.some(m => m.v) && !confirm('Mängudel on juba võitjad. Loosin kõik uuesti?')) return;
+  T.mangud = []; T.tiimid = null;
+  if (T.tiime <= 2) { for (let i = 0; i < 3; i++) lisaKaheMang(); } else lisaRing();
+  T.faas = 'mangud'; T.paranda = false;
+  salvestaMustand(); joonistaAdmin(); window.scrollTo(0, 0);
+}
+function loosiPooleli() {
+  const ootel = T.mangud.map((m, i) => m.v ? -1 : i).filter(i => i >= 0);
+  if (!ootel.length) return toast('Kõigil mängudel on võitja');
+  const tehtud = T.mangud.filter(m => m.v);
+  ootel.forEach(i => { const t = segaKaheks(T.kohal, tehtud.concat(T.mangud.filter((m, j) => j < i && !m.v)), T.elo ? eloKaart() : null); T.mangud[i] = uusMang(t[0], t[1]); });
+  salvestaMustand(); joonistaAdmin(); toast(`${ootel.length} mängu loositud uuesti`);
+}
+
+// --- ristid elavalt
+function ristid() {
+  const r = {};
+  T.kohal.forEach(n => { r[n] = T.lisa[n] || 0; });
+  T.mangud.forEach(m => { if (m.v) (m.v === 'H' ? m.hele : m.tume).forEach(n => { r[n] = (r[n] || 0) + 1; }); });
+  return r;
+}
+
+// --- vaade
+function joonistaAdmin() {
+  const el = $('admin');
+  if (!admin) {
+    el.innerHTML = `<div class="kaart" style="margin-top:16px"><h3>🔐 Admin</h3>
+      <div class="uuend" style="margin-bottom:10px">Trenni sisestamiseks logi sisse oma PIN-iga.</div>
+      <input class="otsi" id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN">
+      <button class="suur" id="pinNupp" style="margin-top:10px">Logi sisse</button></div>`;
+    $('pinNupp').onclick = async () => {
+      const pin = $('pin').value.trim(); if (!pin) return;
+      $('pinNupp').disabled = true; $('pinNupp').textContent = 'Kontrollin…';
+      try {
+        const v = await post({ tegevus: 'pin', pin: pin });
+        if (!v.ok) throw new Error(v.viga);
+        admin = { pin: pin, nimi: v.nimi }; localStorage.setItem(A_KEY, JSON.stringify(admin));
+        joonistaAdmin();
+      } catch (e) { toast(e.message || 'Ühendus ebaõnnestus'); $('pinNupp').disabled = false; $('pinNupp').textContent = 'Logi sisse'; }
+    };
+    return;
+  }
+  let h = `<div class="adm-riba"><span>👋 ${esc(admin.nimi)}</span><span class="link" data-a="valja">logi välja</span></div>`;
+  if (T.faas === 'valmis') {
+    h += `<div class="kaart" style="text-align:center;padding:28px 14px"><div style="font-size:44px">✅</div><h3 style="text-align:center">Trenn salvestatud</h3>
+      <div class="uuend">${esc(T.teade || '')}</div><button class="suur" data-a="uus" style="margin-top:16px">Alusta uut trenni</button></div>`;
+    el.innerHTML = h; return;
+  }
+  if (T.faas === 'kohal') h += kohalVaade(); else h += mangudVaade();
+  el.innerHTML = h;
+}
+
+function kohalVaade() {
+  const valitud = new Set(T.kohal);
+  const nimed = (D ? D.tabel.slice() : []).sort((a, b) => (b.vi || '').localeCompare(a.vi || '') || b.t - a.t).map(x => x.n);
+  T.kohal.forEach(n => { if (nimed.indexOf(n) < 0) nimed.unshift(n); });
+  let h = `<div class="kaart"><h3>📅 Trenn</h3>
+    <div class="rida2"><input type="date" class="otsi" id="kp" value="${T.kp}" style="flex:1"></div>
+    <div class="rida2" style="margin-top:10px"><span class="uuend" style="margin:0">Tiime</span>
+      <div class="seg">${[2, 3, 4].map(n => `<button data-a="tiime" data-n="${n}" class="${T.tiime === n ? 'on' : ''}">${n}</button>`).join('')}</div>
+      <label class="lyliti"><input type="checkbox" id="elo" ${T.elo ? 'checked' : ''}> Elo tasakaal</label></div></div>
+    <div class="kaart"><h3>👥 Kohal <span class="or">${T.kohal.length}</span></h3>
+    <div class="nimed">${nimed.map(n => `<button class="nimi-chip${valitud.has(n) ? ' on' : ''}" data-a="kohal" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>
+    <div class="rida2" style="margin-top:10px"><input class="otsi" id="uusNimi" placeholder="+ uus nimi" style="flex:1"><button class="nupp" data-a="lisaNimi">+</button></div></div>`;
+  h += T.mangud.length
+    ? `<div class="nupurida"><button class="suur hall" data-a="mangudele">⬅ Tagasi mängude juurde</button><button class="suur" data-a="loosi">🎲 Loosi uuesti</button></div>`
+    : `<button class="suur" data-a="loosi" ${T.kohal.length < 4 ? 'disabled' : ''}>🎲 Loosi tiimid</button>`;
+  return h;
+}
+
+function mangudVaade() {
+  const rist = ristid();
+  let h = `<div class="nupurida"><button class="suur hall" data-a="kohalFaas">👥 Kohal (${T.kohal.length})</button>
+    <button class="suur ${T.paranda ? '' : 'hall'}" data-a="paranda">✏️ ${T.paranda ? 'Valmis' : 'Paranda'}</button></div>`;
+  T.mangud.forEach((m, i) => {
+    const tiim = (pool, nimed) => `<div class="tiim ${pool}"><div class="tiim-pais">${pool === 'H' ? 'HELE' : 'TUME'}</div>
+      ${nimed.map(n => `<div class="tn">${esc(n)}${T.paranda ? `<span><b data-a="vaheta" data-i="${i}" data-p="${pool}" data-n="${esc(n)}">⇄</b><b data-a="eemalda" data-i="${i}" data-p="${pool}" data-n="${esc(n)}">✕</b></span>` : ''}</div>`).join('')}
+      ${T.paranda ? `<select class="lisa-sel" data-a="lisaMangu" data-i="${i}" data-p="${pool}"><option value="">+ lisa</option>${T.kohal.filter(n => m.hele.indexOf(n) < 0 && m.tume.indexOf(n) < 0).map(n => `<option>${esc(n)}</option>`).join('')}</select>` : ''}</div>`;
+    h += `<div class="mang${m.v ? ' tehtud' : ''}">
+      <div class="mang-pais"><b>Mäng ${i + 1}</b>${m.silt ? `<span class="uuend" style="margin:0">${esc(m.silt)}</span>` : ''}
+        ${T.paranda ? `<span class="link" data-a="kustutaMang" data-i="${i}">🗑️ kustuta</span>` : ''}</div>
+      <div class="tiimid">${tiim('H', m.hele)}${tiim('T', m.tume)}</div>
+      <div class="voit"><button class="vH${m.v === 'H' ? ' on' : ''}" data-a="voit" data-i="${i}" data-v="H">${m.v === 'H' ? '🏆 ' : ''}HELE võitis</button>
+        <button class="vT${m.v === 'T' ? ' on' : ''}" data-a="voit" data-i="${i}" data-v="T">${m.v === 'T' ? '🏆 ' : ''}TUME võitis</button></div>
+      <div class="skoor"><span>Skoor</span><input inputmode="numeric" maxlength="3" placeholder="H" value="${m.skH}" data-a="sk" data-i="${i}" data-p="skH">
+        <i>–</i><input inputmode="numeric" maxlength="3" placeholder="T" value="${m.skT}" data-a="sk" data-i="${i}" data-p="skT"></div>
+    </div>`;
+  });
+  h += `<div class="nupurida">${T.tiime <= 2 ? '<button class="suur hall" data-a="lisaMang">+ Mäng</button>' : '<button class="suur hall" data-a="uusRing">🔁 Uus ring</button>'}
+    ${T.paranda ? `<button class="suur hall" data-a="tyhiMang">+ Tühi mäng</button>` : ''}</div>`;
+  if (T.paranda && T.tiime <= 2) h += `<button class="suur hall" data-a="loosiPooleli" style="margin-top:8px">🎲 Loosi võitjata mängud uuesti</button>`;
+  h += `<details class="kaart" ${Object.keys(T.lisa).some(n => T.lisa[n]) ? 'open' : ''}><summary><h3 style="display:inline">⭐ Boonus (Lisa X) ja ristid</h3></summary>
+    ${T.kohal.slice().sort((a, b) => (rist[b] || 0) - (rist[a] || 0)).map(n => `<div class="kv"><span>${esc(n)} <small class="or">${'x'.repeat(rist[n] || 0)}</small></span>
+      <span class="stepper"><button data-a="lisaX" data-n="${esc(n)}" data-d="-1">−</button><b>${T.lisa[n] || 0}</b><button data-a="lisaX" data-n="${esc(n)}" data-d="1">+</button></span></div>`).join('')}</details>`;
+  h += `<button class="suur salvesta" data-a="salvesta">💾 Salvesta trenn</button>
+    <div class="uuend" style="text-align:center;margin:8px 0 20px">Mustand on telefonis alles ka siis, kui leht sulgub.</div>`;
+  return h;
+}
+
+function kontrolli() {
+  const vead = [];
+  const mangud = T.mangud.filter(m => m.hele.length || m.tume.length);
+  if (!mangud.length) vead.push('Ühtegi mängu pole');
+  mangud.forEach((m, i) => {
+    if (!m.v) vead.push(`Mäng ${i + 1}: võitja märkimata`);
+    const h = m.skH === '' ? null : Number(m.skH), t = m.skT === '' ? null : Number(m.skT);
+    if ((h === null) !== (t === null)) vead.push(`Mäng ${i + 1}: skoor pooleli`);
+    else if (h !== null && (h === t || (h > t) !== (m.v === 'H'))) vead.push(`Mäng ${i + 1}: skoor ei klapi võitjaga`);
+  });
+  return vead;
+}
+
+async function salvesta() {
+  const vead = kontrolli();
+  if (vead.length) return toast(vead[0]);
+  const mangud = T.mangud.filter(m => m.hele.length || m.tume.length);
+  if (!confirm(`Salvestan trenni ${kp(T.kp)}: ${T.kohal.length} mängijat, ${mangud.length} mängu?`)) return;
+  const tiimNr = {};
+  (T.tiimid || []).forEach((t, i) => t.forEach(n => { tiimNr[n] = i + 1; }));
+  const keha = { tegevus: 'salvesta', pin: admin.pin, id: T.id, trenn: {
+    kp: T.kp, tiime: T.tiime,
+    mangijad: T.kohal.map(n => ({ nimi: n, lisa: T.lisa[n] || 0, tiim: tiimNr[n] || '' })),
+    mangud: mangud.map(m => ({ hele: m.hele, tume: m.tume, voitja: m.v, silt: m.silt,
+      skoor: m.skH !== '' && m.skT !== '' ? { h: Number(m.skH), t: Number(m.skT) } : null }))
+  } };
+  const nupp = document.querySelector('[data-a="salvesta"]');
+  nupp.disabled = true; nupp.textContent = 'Salvestan…';
+  try {
+    const v = await post(keha);
+    if (!v.ok) {
+      if (v.viga === 'Vale PIN') { admin = null; localStorage.removeItem(A_KEY); }
+      throw new Error(v.viga);
+    }
+    T = { faas: 'valmis', teade: v.teade }; localStorage.removeItem(T_KEY);
+    joonistaAdmin(); window.scrollTo(0, 0);
+    setTimeout(() => fetch(ANDMED_URL, { cache: 'no-store' }).then(r => r.json()).then(u => { if (u) { localStorage.setItem('korvpall', JSON.stringify(u)); naita(u, false); } }).catch(() => { }), 75000);
+  } catch (e) {
+    toast(e.message || 'Ei saanud saata – proovi uuesti');
+    nupp.disabled = false; nupp.textContent = '💾 Salvesta trenn';
+  }
+}
+
+function adminKlikk(e) {
+  const b = e.target.closest('[data-a]'); if (!b || b.tagName === 'SELECT' || b.tagName === 'INPUT') return;
+  const a = b.dataset.a, i = Number(b.dataset.i), n = b.dataset.n;
+  const m = T.mangud && T.mangud[i];
+  switch (a) {
+    case 'valja': if (confirm('Logi välja?')) { admin = null; localStorage.removeItem(A_KEY); } break;
+    case 'uus': T = uusTrenn(); break;
+    case 'tiime': T.tiime = Number(b.dataset.n); break;
+    case 'kohal': { const j = T.kohal.indexOf(n); if (j >= 0) T.kohal.splice(j, 1); else T.kohal.push(n); break; }
+    case 'lisaNimi': {
+      const u = $('uusNimi').value.trim().replace(/\s+/g, ' ');
+      if (!u) return; if (T.kohal.indexOf(u) < 0) T.kohal.push(u); break;
+    }
+    case 'loosi': return loosi();
+    case 'loosiPooleli': return loosiPooleli();
+    case 'mangudele': T.faas = 'mangud'; break;
+    case 'kohalFaas': T.faas = 'kohal'; break;
+    case 'paranda': T.paranda = !T.paranda; break;
+    case 'voit': m.v = m.v === b.dataset.v ? null : b.dataset.v; break;
+    case 'vaheta': { const [s, d] = b.dataset.p === 'H' ? [m.hele, m.tume] : [m.tume, m.hele]; s.splice(s.indexOf(n), 1); d.push(n); break; }
+    case 'eemalda': { const s = b.dataset.p === 'H' ? m.hele : m.tume; s.splice(s.indexOf(n), 1); break; }
+    case 'kustutaMang': if (!confirm(`Kustutan mängu ${i + 1}?`)) return; T.mangud.splice(i, 1); break;
+    case 'lisaMang': if (T.kohal.length < 4) return toast('Liiga vähe mängijaid'); lisaKaheMang(); break;
+    case 'uusRing': lisaRing(); break;
+    case 'tyhiMang': T.mangud.push(uusMang([], [])); break;
+    case 'lisaX': T.lisa[n] = Math.max(0, (T.lisa[n] || 0) + Number(b.dataset.d)); break;
+    case 'salvesta': return salvesta();
+    default: return;
+  }
+  salvestaMustand(); joonistaAdmin();
+}
+function adminMuutus(e) {
+  const t = e.target;
+  if (t.id === 'kp') T.kp = t.value;
+  else if (t.id === 'elo') T.elo = t.checked;
+  else if (t.dataset.a === 'sk') { T.mangud[Number(t.dataset.i)][t.dataset.p] = t.value.replace(/\D/g, ''); }
+  else if (t.dataset.a === 'lisaMangu' && t.value) {
+    const m = T.mangud[Number(t.dataset.i)]; (t.dataset.p === 'H' ? m.hele : m.tume).push(t.value); joonistaAdmin();
+  } else return;
+  salvestaMustand();
+}
+function initAdmin() {
+  $('admin').addEventListener('click', adminKlikk);
+  $('admin').addEventListener('change', adminMuutus);
+  $('admin').addEventListener('input', e => { if (e.target.dataset.a === 'sk') adminMuutus(e); });
+  $('admin').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'uusNimi') adminKlikk({ target: document.querySelector('[data-a="lisaNimi"]') }); });
+  joonistaAdmin();
+}
+
 // ---------------- START ----------------
+document.querySelector('nav').onclick = e => { const b = e.target.closest('button'); if (b) vaade(b.dataset.v); };
+initAdmin();
 // 1) Näita kohe viimati laaditud andmeid (telefoni mälust), 2) too värsked taustal.
 let alustatud = false;
 function naita(andmed, vaade) {
