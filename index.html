@@ -123,6 +123,7 @@
   .kuu-hero h2 { margin: 0; font: 400 24px/1.1 'Graduate', serif; color: var(--kuld); }
   .auhinnad { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
   .auh { background: var(--pind); border-radius: 14px; padding: 12px; border: 1px solid var(--joon); cursor: pointer; }
+  .auh.lai { grid-column: 1 / -1; }
   .auh.esim { grid-column: 1 / -1; background: linear-gradient(135deg, #3a2a08, var(--pind)); border-color: #5a4210; }
   .auh .ik { font-size: 26px; }
   .auh .t { font-size: 11px; color: var(--virsik); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-top: 4px; }
@@ -130,9 +131,9 @@
   .auh .v small { color: var(--oranz); font-weight: 600; font-size: 13px; margin-left: 4px; }
   .auh .k { color: var(--tekst2); font-size: 11px; margin-top: 2px; }
   .auh .jargm { color: var(--tekst2); font-size: 12px; margin-top: 6px; border-top: 1px solid var(--pind2); padding-top: 5px; }
-  .ktab { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ktab { width: 100%; border-collapse: collapse; font-size: 13px; }
   .ktab th { color: var(--tekst2); font-size: 10px; text-transform: uppercase; letter-spacing: .5px; text-align: right; padding: 4px 6px; font-weight: 600; }
-  .ktab td { padding: 9px 6px; border-top: 1px solid var(--pind2); text-align: right; }
+  .ktab td { padding: 9px 4px; border-top: 1px solid var(--pind2); text-align: right; }
   .ktab td:nth-child(2), .ktab th:nth-child(2) { text-align: left; }
   .ktab td:first-child { color: var(--tekst2); width: 26px; }
   .ktab tr { cursor: pointer; }
@@ -233,9 +234,10 @@ const ANDMED_URL = 'https://script.google.com/macros/s/AKfycbz__M23-PdR3OpJ5wMm3
 let D = null;
 
 const $ = id => document.getElementById(id);
-const pct = (x, k) => x === null || x === undefined ? '–' : (x * 100).toFixed(k || 0) + '%';
-const pr = (w, g) => g ? `${Math.round(w / g * 100)}% <small style="color:var(--tekst2)">(${w}/${g})</small>` : '–';
-const mark = (x, k) => x === null || x === undefined ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '±') + Math.abs(x).toFixed(k || 0);
+const koma = x => String(x).replace('.', ',');
+const pct = (x, k) => x === null || x === undefined ? '–' : koma((x * 100).toFixed(k || 0)) + '%';
+const pr = (w, g) => g ? `${koma((w / g * 100).toFixed(1))}% <small style="color:var(--tekst2)">(${w}/${g})</small>` : '–';
+const mark = (x, k) => x === null || x === undefined ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '±') + koma(Math.abs(x).toFixed(k || 0));
 const varv = (x, l) => x === null || x === undefined ? '' : x >= (l || 0.0001) ? 'hea' : x <= -(l || 0.0001) ? 'halb' : '';
 const kp = v => v ? v.slice(8, 10) + '.' + v.slice(5, 7) + '.' + v.slice(0, 4) : '–';
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -243,10 +245,11 @@ function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on
 
 // ---------------- EDETABEL ----------------
 const SORT = [
-  { k: 'r', s: 'Ristid', f: x => x.r, n: x => x.r, lisa: x => `${x.t} trenni · ${pct(x.p)}` },
-  { k: 'p', s: 'Võidu %', f: x => x.g >= 20 ? x.p : -1, n: x => pct(x.p), lisa: x => `${x.g} mängu` },
+  { k: 'r', s: 'Ristid', f: x => x.r, n: x => x.r, lisa: x => `${x.t} trenni · ${pct(x.p, 1)}` },
+  { k: 'p', s: 'Võidu %', f: x => x.g >= 20 ? x.p : -1, n: x => pct(x.p, 1), lisa: x => `${x.g} mängu` },
   { k: 'e', s: 'Elo', f: x => x.e === null ? -1 : x.e, n: x => x.e === null ? '–' : x.e, lisa: x => `vorm ${mark(x.v)}` },
   { k: 'v', s: 'Vorm 🔥', f: x => x.v === null ? -999 : x.v, n: x => mark(x.v), lisa: x => `Elo ${x.e === null ? '–' : x.e}` },
+  { k: 'pm', s: '+/-', f: x => x.skg >= D.minSk ? x.pm : -999, n: x => mark(x.pm, 1), lisa: x => `${x.skg} skooriga mängu` },
   { k: 't', s: 'Trenne', f: x => x.t, n: x => x.t, lisa: x => `${x.r} risti` }
 ];
 let sort = SORT[0], otsing = '';
@@ -287,20 +290,23 @@ function init() {
 function joonistaTabel() {
   $('sortSilt').textContent = sort.s;
   const read = D.tabel.filter(x => !otsing || x.n.toLowerCase().includes(otsing))
+    .filter(x => sort.k !== 'v' || !D.vormPiir || (x.vi && x.vi >= D.vormPiir))
+    .filter(x => sort.k !== 'pm' || x.skg > 0)
     .slice().sort((a, b) => sort.f(b) - sort.f(a) || a.k - b.k);
   $('nimekiri').innerHTML = read.map((x, i) => {
     const koht = sort.k === 'r' ? x.k : i + 1;
     const kl = !otsing && koht <= 3 ? ' k' + koht : '';
     const tapid = x.l15.split('').map(c => `<i class="${c}"></i>`).join('');
-    const vaike = (sort.k === 'p' && x.g < 20) || (sort.k === 'e' && x.e === null);
+    const vaike = (sort.k === 'p' && x.g < 20) || (sort.k === 'e' && x.e === null) || (sort.k === 'pm' && x.skg < D.minSk);
     return `<div class="rida${vaike ? ' vaike' : ''}" data-n="${esc(x.n)}">
       <div class="koht${kl}">${koht}</div>
       <div class="nimi"><b>${esc(x.n)}${x.mvp ? `<span class="mvp">${'★'.repeat(Math.min(x.mvp, 5))}</span>` : ''}</b>
         <div class="tapid">${tapid}</div></div>
-      <div class="num"><b class="${sort.k === 'v' ? varv(x.v) : ''}">${sort.n(x)}</b><small>${sort.lisa(x)}</small></div>
+      <div class="num"><b class="${sort.k === 'v' ? varv(x.v) : sort.k === 'pm' ? varv(x.pm, 0.5) : ''}">${sort.n(x)}</b><small>${sort.lisa(x)}</small></div>
     </div>`;
   }).join('') || '<div class="tyhi">Ei leitud</div>';
-  if (sort.k === 'p') $('nimekiri').insertAdjacentHTML('beforeend', '<div class="uuend" style="text-align:center;margin:8px 0">Võidu % järjestuses min 20 mängu</div>');
+  const marge = { p: 'Võidu % järjestuses min 20 mängu', v: 'Vormis on ainult viimase 5 trenni käijad', pm: `+/- = keskmine punktivahe skooriga mängudes (järjestuses min ${D.minSk} mängu)` }[sort.k];
+  if (marge) $('nimekiri').insertAdjacentHTML('beforeend', `<div class="uuend" style="text-align:center;margin:8px 0">${marge}</div>`);
 }
 
 // ---------------- PROFIIL ----------------
@@ -351,12 +357,12 @@ function joonistaProfiil(n) {
     <h2>${esc(p.n)} ${p.mvp ? `<span style="color:var(--kuld);font-size:16px">${'★'.repeat(p.mvp)}</span>` : ''}</h2>
     <div class="alam">#${p.k} edetabelis · ${p.r} risti${p.b ? ` (sh boonus ${p.b})` : ''}</div>
     <div class="ruudud">
-      <div class="ruut"><b class="or">${pct(p.p)}</b><small>Võidu %</small><span class="lisa">silutud ${pct(p.ps)}</span></div>
+      <div class="ruut"><b class="or">${pct(p.p, 1)}</b><small>Võidu %</small><span class="lisa">silutud ${pct(p.ps, 1)}</span></div>
       <div class="ruut"><b>${p.e === null ? '–' : p.e}</b><small>Elo</small><span class="lisa">tipp ${p.et === null ? '–' : p.et}</span></div>
       <div class="ruut"><b class="${varv(p.ev)}">${mark(p.ev)}</b><small>Vorm</small><span class="lisa">viim. 5 trenni</span></div>
-      <div class="ruut"><b>${p.t}</b><small>Trenne</small><span class="lisa">osalus ${pct(p.os)}</span></div>
+      <div class="ruut"><b>${p.t}</b><small>Trenne</small><span class="lisa">osalus ${pct(p.os)} · järjest ${p.kj}</span></div>
       <div class="ruut"><b>${sr}</b><small>Seeria</small><span class="lisa">pikim W${p.mxW} / L${p.mxL}</span></div>
-      <div class="ruut"><b>${p.kj}</b><small>Järjest kohal</small><span class="lisa">rekord ${p.kj > p.km ? p.kj : p.km}</span></div>
+      <div class="ruut"><b class="${p.sk ? varv(p.sk.pm, 0.5) : ''}">${p.sk ? mark(p.sk.pm, 1) : '–'}</b><small>+/- mängus</small><span class="lisa">${p.sk ? p.sk.g + ' skooriga' : 'skoore pole'}</span></div>
     </div>
     <div class="tapid" style="margin-top:12px;gap:4px">${tapid}</div>
     <div class="uuend">viimased 15 mängu · ${p.w}/${p.g} võitu kokku</div>
@@ -406,14 +412,15 @@ function joonistaKuu() {
   let h = `<div class="kuu-hero"><h2>${K.jooksev ? '🏆 MVP-JAHT' : '🏆 KUU MVP'}</h2>
     <div class="alam" style="color:var(--virsik);margin-top:4px">${kuuNimi(K.kuu)} · ${K.trenne} trenni${K.jooksev ? ' · käib veel' : ''}</div>
     ${K.eelmine ? `<div class="uuend" style="margin-top:8px">Eelmise kuu (${kuuNimi(K.eelmine.kuu)}) MVP: <b style="color:var(--kuld)">${K.eelmine.mvp.map(esc).join(', ')}</b> · ${K.eelmine.r} risti</div>` : ''}</div>`;
-  h += '<div class="auhinnad">' + K.auhinnad.map((a, i) => `<div class="auh${i === 0 ? ' esim' : ''}" data-n="${esc(a.l[0].n)}">
+  const AN = K.auhinnad.length;
+  h += '<div class="auhinnad">' + K.auhinnad.map((a, i) => `<div class="auh${i === 0 ? ' esim' : ''}${i > 0 && i === AN - 1 && AN % 2 === 0 ? ' lai' : ''}" data-n="${esc(a.l[0].n)}">
       <div class="ik">${a.i}</div><div class="t">${esc(a.t)}</div>
       <div class="v">${esc(a.l[0].n)}<small>${esc(a.l[0].s)}</small></div><div class="k">${esc(a.k)}</div>
       ${a.l.length > 1 ? `<div class="jargm">${a.l.slice(1).map((x, j) => `${j + 2}. ${esc(x.n)} <span style="color:var(--oranz)">${esc(x.s)}</span>`).join(' · ')}</div>` : ''}
     </div>`).join('') + '</div>';
-  h += kaart(`📋 ${kuuNimi(K.kuu)} – ristid`, `<table class="ktab"><tr><th>#</th><th>Mängija</th><th>Ristid</th><th>Trenne</th><th>Võidu %</th><th>Elo ±</th></tr>
+  h += kaart(`📋 ${kuuNimi(K.kuu)} – ristid`, `<table class="ktab"><tr><th>#</th><th>Mängija</th><th>Ristid</th><th>Trenne</th><th>%</th><th>+/-</th><th>Elo</th></tr>
     ${K.tabel.map((x, i) => `<tr data-n="${esc(x.n)}"><td>${i + 1}</td><td><b>${esc(x.n)}</b></td><td class="or"><b>${x.r}</b></td><td>${x.t}</td>
-      <td>${x.g ? Math.round(x.w / x.g * 100) + '%' : '–'}</td><td class="${varv(x.e)}">${x.e === null ? '–' : mark(x.e)}</td></tr>`).join('')}</table>`);
+      <td>${x.g ? koma((x.w / x.g * 100).toFixed(1)) + '%' : '–'}</td><td class="${varv(x.pm, 0.5)}">${x.pm === null || x.pm === undefined ? '–' : mark(x.pm, 1)}</td><td class="${varv(x.e)}">${x.e === null ? '–' : mark(x.e)}</td></tr>`).join('')}</table>`);
   $('kuu').innerHTML = h;
 }
 
