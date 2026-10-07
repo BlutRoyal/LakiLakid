@@ -56,7 +56,7 @@
   .kpi { display: flex; gap: 8px; margin-top: 12px; }
   .kpi div { flex: 1; background: var(--pind); border: 1px solid var(--joon); border-radius: 10px; padding: 8px 6px; text-align: center; }
   .kpi b { display: block; font-size: 18px; color: var(--oranz); }
-  .kpi small { color: var(--tekst2); font-size: 9.5px; white-space: nowrap; text-transform: uppercase; letter-spacing: .5px; }
+  .kpi small { color: var(--tekst2); font-size: 9.5px; white-space: normal; line-height: 1.25; display: block; text-transform: uppercase; letter-spacing: .5px; }
   .kpi .jarg { flex: 2.6; min-width: 0; cursor: pointer; }
   .kpi .jarg:active { border-color: var(--oranz); }
   .kpi .jarg b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -141,6 +141,24 @@
   .ktab td:nth-child(2), .ktab th:nth-child(2) { text-align: left; }
   .ktab td:first-child { color: var(--tekst2); width: 26px; }
   .ktab tr { cursor: pointer; }
+  /* Ajalugu */
+  .aasta { background: var(--pind); border: 1px solid var(--joon); border-radius: 12px; margin-bottom: 6px; }
+  .aasta summary { display: flex; align-items: center; gap: 12px; padding: 10px 12px; cursor: pointer; list-style: none; }
+  .aasta summary::-webkit-details-marker { display: none; }
+  .aasta .ay { font: 400 20px/1 'Graduate', 'Rockwell', serif; color: var(--oranz); width: 54px; flex: none; }
+  .aasta .ayv { flex: 1; min-width: 0; }
+  .aasta .ayv b { display: block; }
+  .aasta .ayv b small { color: var(--oranz); font-weight: 600; font-size: 13px; margin-left: 4px; }
+  .aasta .ayr { color: var(--tekst2); font-size: 12px; margin-top: 2px; }
+  .aasta .ayn { color: var(--tekst2); transition: transform .2s; }
+  .aasta[open] .ayn { transform: rotate(180deg); }
+  .aasta .sis { padding: 0 12px 10px; }
+  .htab { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .htab th { color: var(--tekst2); font-size: 12px; text-align: center; padding: 4px 6px; font-weight: 600; }
+  .htab td { padding: 8px 6px; border-top: 1px solid var(--pind2); text-align: center; }
+  .htab th:first-child, .htab td:first-child { text-align: left; }
+  .htab tr[data-n] { cursor: pointer; }
+  .htab .nul { color: #555; }
   /* Kalender */
   .kal-pv { margin: 16px 0 6px; font-size: 12px; color: var(--virsik); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; }
   .kal-pv small { color: var(--oranz); margin-left: 6px; font-size: 11px; }
@@ -152,6 +170,8 @@
   .kal-sis { flex: 1; min-width: 0; }
   .kal-sis > b { display: block; font-size: 15px; }
   .kal-alam { color: var(--tekst2); font-size: 12px; margin-top: 3px; }
+  .kal-vorm { margin-top: 4px; font-size: 12px; color: var(--tekst); }
+  .kal-vorm b { color: var(--oranz); }
   .kal-alam a { color: var(--tekst2); text-decoration: underline; text-decoration-color: #555; }
   .liiga { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; color: #111; margin-right: 6px; vertical-align: 1px; }
   .kal-it.trenn { background: transparent; border-style: dashed; }
@@ -245,6 +265,8 @@
 
   <section class="vaade" id="v-kalender"><div id="kalender"></div></section>
 
+  <section class="vaade" id="v-ajalugu"><div id="ajalugu"></div></section>
+
   <section class="vaade" id="v-admin"><div id="admin"></div></section>
 </main>
 
@@ -253,6 +275,7 @@
   <button data-v="profiil"><span>👤</span>Profiil</button>
   <button data-v="kuu"><span>🗓️</span>Kuu</button>
   <button data-v="kalender"><span>📅</span>Kalender</button>
+  <button data-v="ajalugu"><span>🏛️</span>Ajalugu</button>
   <button data-v="admin" id="adminNupp" style="display:none"><span>⚙️</span>Admin</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -272,11 +295,18 @@ const kp = v => v ? v.slice(8, 10) + '.' + v.slice(5, 7) + '.' + v.slice(0, 4) :
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 1800); }
 
+// Elo on "kindel" alates nii mitmendast mängust (sama piir mis Sheetsis: ELO.UUS_MANGE). Vähem mänge = hall ja nimekirja lõpus.
+const eloMin = () => (D && D.eloMin) || 15;
+const eloKindel = x => x.e !== null && (x.em === undefined || x.em >= eloMin());
+// Aasta, mille statistikat näidatakse (viimase trenni aasta)
+const aasta = () => (D && D.viimane ? D.viimane.slice(0, 4) : String(new Date().getFullYear()));
+
 // ---------------- EDETABEL ----------------
 const SORT = [
   { k: 'r', s: 'Ristid', f: x => x.r, n: x => x.r, lisa: x => `${x.t} trenni · ${pct(x.p, 1)}` },
   { k: 'p', s: 'Võidu %', f: x => x.g >= 20 ? x.p : -1, n: x => pct(x.p, 1), lisa: x => `${x.g} mängu` },
-  { k: 'e', s: 'Elo', f: x => x.e === null ? -1 : x.e, n: x => x.e === null ? '–' : x.e, lisa: x => `vorm ${mark(x.v)}` },
+  { k: 'e', s: 'Elo', f: x => x.e === null ? -99999 : (eloKindel(x) ? x.e : x.e - 5000), n: x => x.e === null ? '–' : x.e,
+    lisa: x => (eloKindel(x) || x.e === null || x.em === undefined) ? `vorm ${mark(x.v)}` : `${x.em} mängu` },
   { k: 'v', s: 'Vorm 🔥', f: x => x.v === null ? -999 : x.v, n: x => mark(x.v), lisa: x => `Elo ${x.e === null ? '–' : x.e}` },
   { k: 'pm', s: '+/-', f: x => x.skg >= D.minSk ? x.pm : -999, n: x => mark(x.pm, 1), lisa: x => `${x.skg} skooriga mängu` },
   { k: 't', s: 'Trenne', f: x => x.t, n: x => x.t, lisa: x => `${x.r} risti` }
@@ -326,7 +356,7 @@ function joonistaTabel() {
     const koht = sort.k === 'r' ? x.k : i + 1;
     const kl = !otsing && koht <= 3 ? ' k' + koht : '';
     const tapid = x.l15.split('').map(c => `<i class="${c}"></i>`).join('');
-    const vaike = (sort.k === 'p' && x.g < 20) || (sort.k === 'e' && x.e === null) || (sort.k === 'pm' && x.skg < D.minSk);
+    const vaike = (sort.k === 'p' && x.g < 20) || (sort.k === 'e' && !eloKindel(x)) || (sort.k === 'pm' && x.skg < D.minSk);
     return `<div class="rida${vaike ? ' vaike' : ''}" data-n="${esc(x.n)}">
       <div class="koht${kl}">${koht}</div>
       <div class="nimi"><b>${esc(x.n)}${x.mvp ? `<span class="mvp">${'★'.repeat(Math.min(x.mvp, 5))}</span>` : ''}</b>
@@ -334,7 +364,12 @@ function joonistaTabel() {
       <div class="num"><b class="${sort.k === 'v' ? varv(x.v) : sort.k === 'pm' ? varv(x.pm, 0.5) : ''}">${sort.n(x)}</b><small>${sort.lisa(x)}</small></div>
     </div>`;
   }).join('') || '<div class="tyhi">Ei leitud</div>';
-  const marge = { p: 'Võidu % järjestuses min 20 mängu', v: 'Vormis on ainult viimase 5 trenni käijad', pm: `+/- = keskmine punktivahe skooriga mängudes (järjestuses min ${D.minSk} mängu)` }[sort.k];
+  const marge = {
+    p: 'Võidu % järjestuses min 20 mängu',
+    e: `Elo on kindel alates ${eloMin()} mängust – vähem mänginud on hallid ja nimekirja lõpus (reiting alles loksub paika)`,
+    v: 'Vormis on ainult viimase 5 trenni käijad',
+    pm: `+/- = keskmine punktivahe skooriga mängudes (järjestuses min ${D.minSk} mängu)`
+  }[sort.k];
   if (marge) $('nimekiri').insertAdjacentHTML('beforeend', `<div class="uuend" style="text-align:center;margin:8px 0">${marge}</div>`);
 }
 
@@ -343,6 +378,7 @@ function vaade(v) {
   if (v === 'admin') joonistaAdmin();
   if (v === 'kuu') joonistaKuu();
   if (v === 'kalender') joonistaKalender();
+  if (v === 'ajalugu') joonistaAjalugu();
   document.querySelectorAll('.vaade').forEach(x => x.classList.toggle('aktiivne', x.id === 'v-' + v));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   window.scrollTo(0, 0);
@@ -396,6 +432,7 @@ function joonistaProfiil(n) {
     </div>
     <div class="tapid" style="margin-top:12px;gap:4px">${tapid}</div>
     <div class="uuend">viimased 15 mängu · ${p.w}/${p.g} võitu kokku</div>
+    <div class="uuend" style="margin-top:8px">ℹ️ <b>Silutud %</b> on võidu %, mis ei hüppa äärmusesse vähese mänguga: arvutuses on mängijale lisatud 10 mõttelist mängu (5 võitu, 5 kaotust). Näiteks 3 võitu 3 mängust = 100%, silutud 61.5%. Mida rohkem päris mänge, seda vähem silumine muudab.</div>
   </div>`;
 
   h += kaart('📈 Elo ajas', eloGraafik(p));
@@ -428,7 +465,7 @@ function joonistaProfiil(n) {
     kv('Skooriga mänge', `${p.sk.g} (võite ${p.sk.w})`) +
     kv('+/- mängu kohta', `<span class="${varv(p.sk.pm, 1)}">${mark(p.sk.pm, 1)}</span>`) +
     kv('Napid mängud (W-L)', p.sk.nG ? `${p.sk.nW}-${p.sk.nG - p.sk.nW}` : '–') +
-    kv('🔥 Andis leili', p.sk.la) + kv('🧖 Sai sauna', p.sk.sa));
+    kv('🔥 Andis leili (suur võit)', p.sk.la) + kv('🧖 Sai sauna (suur kaotus)', p.sk.sa));
 
   $('profiil').innerHTML = h;
 }
@@ -452,6 +489,109 @@ function joonistaKuu() {
     ${K.tabel.map((x, i) => `<tr data-n="${esc(x.n)}"><td>${i + 1}</td><td><b>${esc(x.n)}</b></td><td class="or"><b>${x.r}</b></td><td>${x.t}</td>
       <td>${x.g ? koma((x.w / x.g * 100).toFixed(1)) + '%' : '–'}</td><td class="${varv(x.pm, 0.5)}">${x.pm === null || x.pm === undefined ? '–' : mark(x.pm, 1)}</td><td class="${varv(x.e)}">${x.e === null ? '–' : mark(x.e)}</td></tr>`).join('')}</table>`);
   $('kuu').innerHTML = h;
+}
+
+// ---------------- AJALUGU (eelmiste aastate ristikeste võitjad) ----------------
+// Ainult eesnimed. Kui kaks eri inimest on samanimelised, kirjuta täpsustus (nt 'Peeter M.') – sama inimene peab igal aastal olema täpselt sama kirjaga.
+// Andmed on käsitsi kogutud. Kirje: [nimi, ristid] · kui punkte ei tea: [nimi, null] või [nimi, null, vahe võitjast].
+// Uue aasta arhiveerimiseks lisa siia uus rida (aasta: [[nimi, ristid], ...]).
+const AJ = {
+  2025: [['Freddy', 127], ['Jens-Kaidar', 100], ['Roger', 97], ['Kristo', 84], ['Gert', 80], ['Kaspar', 76], ['Pjotr', 75], ['Johann', 72],
+    ['Leho', 70], ['Taavi', 62], ['Matis', 57], ['Asso', 52], ['Kristjan', 45], ['Jörgen', 43], ['Jan-Erik', 39], ['Martin', 38],
+    ['Robert', 37], ['Immo', 36], ['Joosep', 34], ['Joonas', 33], ['Peeter', 27], ['Kaur', 27], ['Mario', 26], ['Oliver', 23], ['Heigo', 22]],
+  2024: [['Roger', 146], ['Freddy', 130], ['Kristo', 117], ['Pjotr', 113], ['Kaspar', 100]],
+  2023: [['Werner', 120], ['Kristo', 113], ['Roger', 110], ['Joonas', 87], ['Pjotr', 74]],
+  2022: [['Joonas', 111], ['Werner', 110], ['Gert', 104], ['Roger', 72], ['Kaspar', 70]],
+  2021: [['Johann', 61], ['Freddy', 60], ['Bobi', 50], ['Kristjan', 47], ['Joonas', 36]],
+  2020: [['Werner', 89], ['Gert', 77], ['Johann', 71], ['Roger', 66], ['Kristo', 60]],
+  2019: [['Madis', 97], ['Kristjan', 92], ['Kristo', 82], ['Roger', 78], ['Immo', 73]],
+  2018: [['Roger', 166], ['Kaspar', 134], ['Kristjan', 125], ['Werner', 111], ['Kristo', 106]],
+  2017: [['Kristo', 160], ['Roger', 140], ['Kaspar', 135], ['Freddy', 107], ['Joonas', 91]],
+  2016: [['Madis', 163], ['Kristo', 157], ['Roger', 141], ['Kaspar', 129], ['Immo', 121]],
+  2015: [['Madis', 187], ['Roger', 167], ['Kaspar', 166], ['Kristo', 162], ['Lauri', 79]],
+  2014: [['Kristo', 108], ['Roger', 100], ['Peeter M.', 90], ['Timo', 88], ['Kaspar', 72]],
+  2013: [['Freddy', 177], ['Kristo', 155], ['Timo', 116], ['Kaspar', 115], ['Madis', 104]],
+  2012: [['Kristo', 154], ['Madis', 146], ['Immo', 122], ['Joonas', 88], ['Horre', 75]],
+  2011: [['Peeter M.', 112], ['Roger', 89], ['Mantas', 69], ['Kristo', null], ['Pirmin', null]],
+  2010: [['Peeter M.', null], ['Joonas', null, -14], ['Roger', null, -17]],
+  2009: [['Kristo', null], ['Roger', null, -2], ['Pirmin', null, -2]]
+};
+
+/** Lisab igale reale koha (võrdsed tulemused jagavad kohta). */
+function ajKohad(read) {
+  let eel = null, koht = 0;
+  return read.map((x, i) => {
+    const v = x[1] !== null ? 's' + x[1] : (x[2] !== undefined ? 'g' + x[2] : 'n' + i);
+    if (v !== eel) koht = i + 1;
+    eel = v;
+    return { n: x[0], t: x[0], s: x[1], g: x[2], k: koht };
+  });
+}
+
+function ajVaartus(x) { return x.s !== null ? String(x.s) : x.g !== undefined ? '−' + Math.abs(x.g) + ' risti' : '–'; }
+
+function joonistaAjalugu() {
+  const el = $('ajalugu');
+  const aastad = Object.keys(AJ).map(Number).sort((a, b) => b - a).map(y => ({ y: y, r: ajKohad(AJ[y]) }));
+
+  // Mängijate kokkuvõte
+  const m = {};
+  aastad.forEach(A => A.r.forEach(x => {
+    const s = m[x.n] || (m[x.n] = { n: x.n, g: 0, s: 0, b: 0, t5: 0 });
+    if (x.k === 1) s.g++; else if (x.k === 2) s.s++; else if (x.k === 3) s.b++;
+    if (x.k <= 5) s.t5++;
+  }));
+  const P = Object.keys(m).map(n => m[n]);
+  const hof = P.filter(x => x.g + x.s + x.b > 0)
+    .sort((a, b) => b.g - a.g || b.s - a.s || b.b - a.b || b.t5 - a.t5 || a.n.localeCompare(b.n, 'et'));
+  const num = (v, v1) => v ? (v1 ? `<b class="or">${v}</b>` : v) : '<span class="nul">·</span>';
+
+  // Rekordid
+  const maksimum = f => { const v = Math.max.apply(null, P.map(f)); return { v: v, l: P.filter(x => f(x) === v).map(x => esc(x.n)).join(', ') }; };
+  const tiit = maksimum(x => x.g), ped = maksimum(x => x.g + x.s + x.b), top5 = maksimum(x => x.t5);
+  let parim = null;
+  aastad.forEach(A => A.r.forEach(x => { if (x.s !== null && (!parim || x.s > parim.s)) parim = { s: x.s, n: x.n, y: A.y }; }));
+  const vahed = aastad.map(A => {
+    const a = A.r[0], b = A.r[1];
+    if (!a || !b) return null;
+    const v = a.s !== null && b.s !== null ? a.s - b.s : (b.g !== undefined ? Math.abs(b.g) : null);
+    return v === null ? null : { y: A.y, v: v, a: a.n, b: b.n };
+  }).filter(Boolean);
+  const minVahe = vahed.length ? Math.min.apply(null, vahed.map(x => x.v)) : null;
+  const tihedad = vahed.filter(x => x.v === minVahe);
+
+  // Jooksev aasta
+  const jooksev = D ? D.tabel.slice().sort((a, b) => a.k - b.k).slice(0, 3) : [];
+
+  let h = '';
+  if (jooksev.length) {
+    h += `<div class="kuu-hero"><h2>🏆 ${aasta()} · käimas</h2>
+      <div style="margin-top:8px">${jooksev.map((x, i) => `<div class="kv"><span>${['🥇', '🥈', '🥉'][i]} ${esc(x.n)}</span><span class="or"><b>${x.r}</b> risti</span></div>`).join('')}</div>
+      <div class="uuend" style="margin-top:6px">Iga aasta lõpus liigub tulemus siia arhiivi ja ristikeste jaht algab uuest.</div></div>`;
+  }
+
+  h += kaart('🏛️ Au hall', `<table class="htab"><tr><th>Mängija</th><th>🥇</th><th>🥈</th><th>🥉</th><th>Top 5</th></tr>
+    ${hof.map(x => `<tr data-n="${esc(x.n)}"><td><b>${esc(x.n)}</b></td><td>${num(x.g, true)}</td><td>${num(x.s)}</td><td>${num(x.b)}</td><td>${num(x.t5)}</td></tr>`).join('')}</table>
+    <div class="uuend" style="margin-top:6px">Kohad aasta ristikeste edetabelis. Nimele puudutades avaneb profiil (kui mängija on selle aasta TOP 25-s).</div>`);
+
+  h += kaart('📌 Rekordid',
+    kv('Enim tiitleid', `${tiit.l} · ${tiit.v}`) +
+    kv('Enim pjedestaale (TOP 3)', `${ped.l} · ${ped.v}`) +
+    kv('Enim TOP 5 kohti', `${top5.l} · ${top5.v}`) +
+    (parim ? kv('Parim hooaeg', `${esc(parim.n)} · ${parim.s} risti (${parim.y})`) : '') +
+    (minVahe !== null ? kv('Tihedaim võitlus', tihedad.map(x => `${x.y} ${esc(x.a)}–${esc(x.b)}`).join(' · ') + ` · vahe ${minVahe} ${minVahe === 1 ? 'rist' : 'risti'}`) : ''));
+
+  h += '<div class="pais-rida" style="margin-top:16px"><span>Aastate tulemused</span><span>puuduta → TOP</span></div>';
+  h += aastad.map(A => {
+    const koht = k => A.r.filter(x => x.k === k);
+    const voit = koht(1).map(x => `${esc(x.n)}${x.s !== null ? `<small>${x.s}</small>` : ''}`).join(', ');
+    const teised = [[2, '🥈'], [3, '🥉']].map(z => koht(z[0]).length ? `${z[1]} ${koht(z[0]).map(x => esc(x.n)).join(', ')}` : '').filter(Boolean).join(' · ');
+    return `<details class="aasta"><summary><span class="ay">${A.y}</span>
+      <div class="ayv"><b>🥇 ${voit}</b><div class="ayr">${teised}</div></div><span class="ayn">▾</span></summary>
+      <div class="sis">${A.r.map(x => kv(`${x.k}. ${esc(x.t)}`, ajVaartus(x))).join('')}</div></details>`;
+  }).join('');
+  h += '<div class="uuend" style="text-align:center;margin:12px 0">Varasemate aastate andmed on käsitsi kogutud: 2009–2011 puuduvad osade kohtade punktid.</div>';
+  el.innerHTML = h;
 }
 
 // ---------------- KALENDER (mängud + trennid) ----------------
@@ -542,9 +682,10 @@ function kalMangHtml(m, tulemus) {
   } else if (tulemus) sk = '<div class="kal-sk" style="color:var(--tekst2);font-size:12px;font-weight:400">tulemus puudub</div>';
   const koht = m.v ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.v)}" target="_blank" rel="noopener">${esc(m.v)}</a>` : '';
   const aeg = tulemus ? `<b>${kLyhike(m.d)}</b>${m.t ? `<small>${m.t}</small>` : ''}` : `<b>${m.t || '?'}</b>`;
+  const vormHtml = tulemus ? '' : `<div class="kal-vorm">${kodu ? '⚪ Kodumäng – võta kindlasti <b>valge</b> vorm' : '⚫ Võõrsil – võta kindlasti <b>tume</b> vorm'}</div>`;
   return `<div class="kal-it"><div class="kal-aeg">${aeg}</div>
     <div class="kal-sis"><b>LakiLakid vs ${esc(vastane)}</b>
-      <div class="kal-alam"><span class="liiga" style="background:${vari}">${esc(m.l || '?')}</span>${kodu ? 'Kodus' : 'Võõrsil'}${koht ? ' · ' + koht : ''}</div></div>${sk}</div>`;
+      <div class="kal-alam"><span class="liiga" style="background:${vari}">${esc(m.l || '?')}</span>${kodu ? 'Kodus' : 'Võõrsil'}${koht ? ' · ' + koht : ''}</div>${vormHtml}</div>${sk}</div>`;
 }
 
 function kalTrennHtml(e) {
@@ -590,16 +731,16 @@ function joonistaKalender() {
   el.innerHTML = h;
 }
 
-/** Avalehe KPI-d: Trenne, Mänge + järgmine mäng/trenn. */
+/** Avalehe KPI-d: Trenne (aastaga), Mänge trennis + järgmine mäng/trenn. */
 function joonistaKpi() {
   if (!D) return;
-  let h = [['Trenne', D.trenne], ['Mänge', D.mange]].map(x => `<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
+  let h = [[`Trenne ${aasta()}`, D.trenne], ['Mänge trennis', D.mange]].map(x => `<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
   const j = K && !K.puudub ? kalJargmine() : null;
   if (j) {
     const aeg = `${kalLuhikePaev(j.d)} ${j.t || ''}`.trim();
     if (j.liik === 'm') {
       const meie = K.meie || 'LakiLakid', kodu = j.m.h === meie;
-      h += `<div class="jarg" data-v="kalender"><small>Järgmine mäng</small><b>${esc(aeg)}</b><span>${esc(kodu ? j.m.g : j.m.h)} · ${kodu ? 'kodus' : 'võõrsil'}</span></div>`;
+      h += `<div class="jarg" data-v="kalender"><small>Järgmine mäng</small><b>${esc(aeg)}</b><span>${esc(kodu ? j.m.g : j.m.h)} · ${kodu ? 'kodus · valge vorm' : 'võõrsil · tume vorm'}</span></div>`;
     } else {
       h += `<div class="jarg" data-v="kalender"><small>Järgmine trenn</small><b>${j.hoiatus ? '⚠️ ' : ''}${esc(aeg)}</b><span>${esc(j.koht || '')}${j.hoiatus ? ' · vaata kalendrit' : ''}</span></div>`;
     }
@@ -888,6 +1029,10 @@ function initAdmin() {
     const r = e.target.closest('[data-n]'); if (!r) return;
     if (D.profiil[r.dataset.n]) avaProfiil(r.dataset.n); else toast('Profiil on TOP 25 mängijal');
   });
+  $('ajalugu').addEventListener('click', e => {
+    const r = e.target.closest('tr[data-n]'); if (!r) return;
+    if (D && D.profiil[r.dataset.n]) avaProfiil(r.dataset.n); else toast('Profiil on ainult selle aasta TOP 25 mängijatel');
+  });
   $('kalender').addEventListener('click', e => {
     const b = e.target.closest('#kalSeg button'); if (!b) return;
     kalTab = b.dataset.t; joonistaKalender();
@@ -918,7 +1063,7 @@ function naita(andmed, vaade) {
   $('uuend').innerHTML = `Uuendatud ${D.uuendatud} · viimane trenn ${kp(D.viimane)}`;
   $('logo').classList.toggle('keerleb', !!vaade);
   peidaSplash();
-  if (!D.versioon || D.versioon < 3) $('uuend').innerHTML += '<br><span style="color:var(--hoiatus,#ffd966)">⚠️ Andmed on vanast koodist – käivita Sheetsis 📊 Uuenda statistika</span>';
+  if (!D.versioon || D.versioon < 4) $('uuend').innerHTML += '<br><span style="color:var(--hoiatus,#ffd966)">⚠️ Andmed on vanast koodist – käivita Sheetsis 📊 Uuenda statistika</span>';
   joonistaKpi();
   if (!alustatud) { alustatud = true; init(); return; }
   const n = $('mangija').value;
