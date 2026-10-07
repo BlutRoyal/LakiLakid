@@ -423,7 +423,7 @@ function joonistaProfiil(n) {
     <h2>${esc(p.n)} ${p.mvp ? `<span style="color:var(--kuld);font-size:16px">${'★'.repeat(p.mvp)}</span>` : ''}</h2>
     <div class="alam">#${p.k} edetabelis · ${p.r} risti${p.b ? ` (sh boonus ${p.b})` : ''}</div>
     <div class="ruudud">
-      <div class="ruut"><b class="or">${pct(p.p, 1)}</b><small>Võidu %</small><span class="lisa">silutud ${pct(p.ps, 1)}</span></div>
+      <div class="ruut"><b class="or">${pct(p.p, 1)}</b><small>Võidu %</small><span class="lisa">${p.w}/${p.g} mängu</span></div>
       <div class="ruut"><b>${p.e === null ? '–' : p.e}</b><small>Elo</small><span class="lisa">tipp ${p.et === null ? '–' : p.et}</span></div>
       <div class="ruut"><b class="${varv(p.ev)}">${mark(p.ev)}</b><small>Vorm</small><span class="lisa">viim. 5 trenni</span></div>
       <div class="ruut"><b>${p.t}</b><small>Trenne</small><span class="lisa">osalus ${pct(p.os)} · järjest ${p.kj}</span></div>
@@ -432,7 +432,6 @@ function joonistaProfiil(n) {
     </div>
     <div class="tapid" style="margin-top:12px;gap:4px">${tapid}</div>
     <div class="uuend">viimased 15 mängu · ${p.w}/${p.g} võitu kokku</div>
-    <div class="uuend" style="margin-top:8px">ℹ️ <b>Silutud %</b> on võidu %, mis ei hüppa äärmusesse vähese mänguga: arvutuses on mängijale lisatud 10 mõttelist mängu (5 võitu, 5 kaotust). Näiteks 3 võitu 3 mängust = 100%, silutud 61.5%. Mida rohkem päris mänge, seda vähem silumine muudab.</div>
   </div>`;
 
   h += kaart('📈 Elo ajas', eloGraafik(p));
