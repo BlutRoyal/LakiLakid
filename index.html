@@ -57,6 +57,10 @@
   .kpi div { flex: 1; background: var(--pind); border: 1px solid var(--joon); border-radius: 10px; padding: 8px 6px; text-align: center; }
   .kpi b { display: block; font-size: 18px; color: var(--oranz); }
   .kpi small { color: var(--tekst2); font-size: 9.5px; white-space: nowrap; text-transform: uppercase; letter-spacing: .5px; }
+  .kpi .jarg { flex: 2.6; min-width: 0; cursor: pointer; }
+  .kpi .jarg:active { border-color: var(--oranz); }
+  .kpi .jarg b { font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .kpi .jarg span { display: block; color: var(--tekst2); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   main { padding: 0 16px; max-width: 720px; margin: 0 auto; }
   .vaade { display: none; } .vaade.aktiivne { display: block; }
 
@@ -137,6 +141,28 @@
   .ktab td:nth-child(2), .ktab th:nth-child(2) { text-align: left; }
   .ktab td:first-child { color: var(--tekst2); width: 26px; }
   .ktab tr { cursor: pointer; }
+  /* Kalender */
+  .kal-pv { margin: 16px 0 6px; font-size: 12px; color: var(--virsik); text-transform: uppercase; letter-spacing: .6px; font-weight: 700; }
+  .kal-pv small { color: var(--oranz); margin-left: 6px; font-size: 11px; }
+  .kal-it { display: flex; align-items: center; gap: 12px; background: var(--pind); border: 1px solid var(--joon); border-radius: 12px;
+    padding: 10px 12px; margin-bottom: 6px; }
+  .kal-aeg { width: 46px; flex: none; text-align: center; }
+  .kal-aeg b { display: block; font-size: 16px; color: var(--oranz); }
+  .kal-aeg small { color: var(--tekst2); font-size: 11px; }
+  .kal-sis { flex: 1; min-width: 0; }
+  .kal-sis > b { display: block; font-size: 15px; }
+  .kal-alam { color: var(--tekst2); font-size: 12px; margin-top: 3px; }
+  .kal-alam a { color: var(--tekst2); text-decoration: underline; text-decoration-color: #555; }
+  .liiga { display: inline-block; padding: 1px 7px; border-radius: 999px; font-size: 10px; font-weight: 800; color: #111; margin-right: 6px; vertical-align: 1px; }
+  .kal-it.trenn { background: transparent; border-style: dashed; }
+  .kal-it.trenn .kal-aeg b { color: var(--tekst2); }
+  .kal-it.ara { opacity: .5; }
+  .kal-it.ara .kal-sis > b { text-decoration: line-through; }
+  .kal-hoi { color: #ffd966; font-size: 12px; margin-top: 3px; }
+  .kal-sk { text-align: right; flex: none; font-weight: 800; font-size: 18px; }
+  .kal-sk small { display: block; font-size: 10px; letter-spacing: .5px; }
+  .kal-link { display: block; padding: 10px 0; color: var(--virsik); border-top: 1px solid var(--pind2); text-decoration: none; font-size: 14px; }
+  .kal-link:first-of-type { border-top: 0; }
   /* Admin */
   .adm-riba { display: flex; justify-content: space-between; align-items: center; margin: 12px 0 0; color: var(--tekst2); font-size: 13px; }
   .link { color: var(--virsik); cursor: pointer; text-decoration: underline; font-size: 13px; }
@@ -217,6 +243,8 @@
 
   <section class="vaade" id="v-kuu"><div id="kuu"></div></section>
 
+  <section class="vaade" id="v-kalender"><div id="kalender"></div></section>
+
   <section class="vaade" id="v-admin"><div id="admin"></div></section>
 </main>
 
@@ -224,6 +252,7 @@
   <button class="on" data-v="edetabel"><span>🏆</span>Edetabel</button>
   <button data-v="profiil"><span>👤</span>Profiil</button>
   <button data-v="kuu"><span>🗓️</span>Kuu</button>
+  <button data-v="kalender"><span>📅</span>Kalender</button>
   <button data-v="admin" id="adminNupp" style="display:none"><span>⚙️</span>Admin</button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -234,7 +263,7 @@ const ANDMED_URL = 'https://script.google.com/macros/s/AKfycbz__M23-PdR3OpJ5wMm3
 let D = null;
 
 const $ = id => document.getElementById(id);
-const koma = x => String(x).replace('.', ',');
+const koma = x => String(x);   // komakoht punktiga
 const pct = (x, k) => x === null || x === undefined ? '–' : koma((x * 100).toFixed(k || 0)) + '%';
 const pr = (w, g) => g ? `${koma((w / g * 100).toFixed(1))}% <small style="color:var(--tekst2)">(${w}/${g})</small>` : '–';
 const mark = (x, k) => x === null || x === undefined ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '±') + koma(Math.abs(x).toFixed(k || 0));
@@ -313,6 +342,7 @@ function joonistaTabel() {
 function vaade(v) {
   if (v === 'admin') joonistaAdmin();
   if (v === 'kuu') joonistaKuu();
+  if (v === 'kalender') joonistaKalender();
   document.querySelectorAll('.vaade').forEach(x => x.classList.toggle('aktiivne', x.id === 'v-' + v));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
   window.scrollTo(0, 0);
@@ -422,6 +452,180 @@ function joonistaKuu() {
     ${K.tabel.map((x, i) => `<tr data-n="${esc(x.n)}"><td>${i + 1}</td><td><b>${esc(x.n)}</b></td><td class="or"><b>${x.r}</b></td><td>${x.t}</td>
       <td>${x.g ? koma((x.w / x.g * 100).toFixed(1)) + '%' : '–'}</td><td class="${varv(x.pm, 0.5)}">${x.pm === null || x.pm === undefined ? '–' : mark(x.pm, 1)}</td><td class="${varv(x.e)}">${x.e === null ? '–' : mark(x.e)}</td></tr>`).join('')}</table>`);
   $('kuu').innerHTML = h;
+}
+
+// ---------------- KALENDER (mängud + trennid) ----------------
+// Mängud tulevad Sheetsi lehelt "Kalender" (…/exec?kal=1), trennid arvutatakse reeglitest:
+// riigipühal trenni pole, mängupäeval jääb trenn ära (v.a. mäng enne 13:00 → hoiatus), lisaks käsitsi "Trennid ära".
+const KAL_KEY = 'korvpall-kalender';
+const NPN = ['Pühapäev', 'Esmaspäev', 'Teisipäev', 'Kolmapäev', 'Neljapäev', 'Reede', 'Laupäev'];
+const NPL = ['P', 'E', 'T', 'K', 'N', 'R', 'L'];
+const LIIGAD = { RHL: '#ff9900', Rahvaliiga: '#6fa8ff' };
+const RHL_URL = 'https://liiga.bcforwards.ee/';
+const BASKET_URL = 'https://www.basket.ee/et/pohja-regiooni-rahvaliiga/221/ajakava-ja-tulemused/?action=schedule';
+let K = null, kalTab = 'tul';
+
+const kIso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const kDate = s => new Date(Number(s.slice(0, 4)), Number(s.slice(5, 7)) - 1, Number(s.slice(8, 10)));
+const kAeg = (d, t) => { const x = kDate(d); const o = (t || '00:00').split(':'); x.setHours(Number(o[0]), Number(o[1]), 0, 0); return x; };
+const kLyhike = s => s.slice(8, 10) + '.' + s.slice(5, 7);
+
+function lihavoted(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25),
+    g = Math.floor((b - f + 1) / 3), h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4,
+    l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+    kuu = Math.floor((h + l - 7 * m + 114) / 31), paev = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(y, kuu - 1, paev);
+}
+const pyhaMall = {};
+function pyhad(y) {
+  if (pyhaMall[y]) return pyhaMall[y];
+  const p = {};
+  [['01-01', 'Uusaasta'], ['02-24', 'Iseseisvuspäev'], ['05-01', 'Kevadpüha'], ['06-23', 'Võidupüha'], ['06-24', 'Jaanipäev'],
+    ['08-20', 'Taasiseseisvumispäev'], ['12-24', 'Jõululaupäev'], ['12-25', 'Esimene jõulupüha'], ['12-26', 'Teine jõulupüha']]
+    .forEach(x => { p[y + '-' + x[0]] = x[1]; });
+  const lisa = (n, nimi) => { const d = lihavoted(y); d.setDate(d.getDate() + n); p[kIso(d)] = nimi; };
+  lisa(-2, 'Suur reede'); lisa(0, 'Ülestõusmispühade 1. püha'); lisa(49, 'Nelipühade 1. püha');
+  return (pyhaMall[y] = p);
+}
+
+/** Mängud + järgmiste `paevi` päeva trennid ühes järjestatud nimekirjas. */
+function kalSundmused(paevi) {
+  const mangud = (K && K.mangud) || [];
+  const T = K && K.trennid;
+  const ev = mangud.map(m => ({ liik: 'm', d: m.d, t: m.t || '', m: m, algus: kAeg(m.d, m.t) }));
+  if (T && T.reeglid) {
+    const ara = {}; (T.ara || []).forEach(x => { ara[x.d] = x.p || 'trenn ära'; });
+    const nyyd = new Date();
+    for (let i = 0; i < paevi; i++) {
+      const dt = new Date(nyyd.getFullYear(), nyyd.getMonth(), nyyd.getDate() + i);
+      const iso = kIso(dt), pv = dt.getDay() || 7;
+      T.reeglid.filter(r => r.pv === pv).forEach(r => {
+        const e = { liik: 't', d: iso, t: r.t, koht: r.k, algus: kAeg(iso, r.t), markus: T.markus || '' };
+        const pyha = pyhad(dt.getFullYear())[iso];
+        const samal = mangud.filter(m => m.d === iso && m.t).sort((a, b) => a.t.localeCompare(b.t));
+        if (iso in ara) e.ara = ara[iso];
+        else if (pyha) e.ara = pyha;
+        else if (samal.length) {
+          if (samal[0].t < (T.varaPiir || '13:00')) e.hoiatus = 'Mäng kell ' + samal[0].t + ' – trenn võib ära jääda';
+          else e.ara = 'mäng ' + samal[0].t;
+        }
+        ev.push(e);
+      });
+    }
+  }
+  return ev.sort((a, b) => a.algus - b.algus || (a.liik === 'm' ? -1 : 1));
+}
+
+const kalOnTulemas = (e, n) => e.liik === 'm' ? !e.m.s && e.algus.getTime() + 3 * 3600e3 >= n : e.algus.getTime() + 2 * 3600e3 >= n;
+function kalTulevased() { const n = Date.now(); return kalSundmused(42).filter(e => kalOnTulemas(e, n)); }
+function kalJargmine() { const n = Date.now(); return kalSundmused(42).find(e => !e.ara && !(e.liik === 'm' && e.m.s) && e.algus.getTime() >= n) || null; }
+
+function kalPaev(iso) {
+  const dt = kDate(iso), tana = new Date(), homme = new Date(tana.getFullYear(), tana.getMonth(), tana.getDate() + 1);
+  const silt = iso === kIso(tana) ? 'Täna' : iso === kIso(homme) ? 'Homme' : '';
+  return `${NPN[dt.getDay()]} ${kLyhike(iso)}${silt ? `<small>${silt}</small>` : ''}`;
+}
+function kalLuhikePaev(iso) {
+  const tana = new Date(), homme = new Date(tana.getFullYear(), tana.getMonth(), tana.getDate() + 1);
+  return iso === kIso(tana) ? 'Täna' : iso === kIso(homme) ? 'Homme' : NPL[kDate(iso).getDay()] + ' ' + kLyhike(iso);
+}
+
+function kalMangHtml(m, tulemus) {
+  const meie = (K && K.meie) || 'LakiLakid';
+  const kodu = m.h === meie, vastane = kodu ? m.g : m.h;
+  const vari = LIIGAD[m.l] || '#999';
+  let sk = '';
+  if (m.s) {
+    const my = kodu ? m.s[0] : m.s[1], op = kodu ? m.s[1] : m.s[0], v = my > op;
+    sk = `<div class="kal-sk ${v ? 'hea' : 'halb'}">${my}–${op}<small>${v ? 'VÕIT' : 'KAOTUS'}</small></div>`;
+  } else if (tulemus) sk = '<div class="kal-sk" style="color:var(--tekst2);font-size:12px;font-weight:400">tulemus puudub</div>';
+  const koht = m.v ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(m.v)}" target="_blank" rel="noopener">${esc(m.v)}</a>` : '';
+  const aeg = tulemus ? `<b>${kLyhike(m.d)}</b>${m.t ? `<small>${m.t}</small>` : ''}` : `<b>${m.t || '?'}</b>`;
+  return `<div class="kal-it"><div class="kal-aeg">${aeg}</div>
+    <div class="kal-sis"><b>LakiLakid vs ${esc(vastane)}</b>
+      <div class="kal-alam"><span class="liiga" style="background:${vari}">${esc(m.l || '?')}</span>${kodu ? 'Kodus' : 'Võõrsil'}${koht ? ' · ' + koht : ''}</div></div>${sk}</div>`;
+}
+
+function kalTrennHtml(e) {
+  if (e.ara) return `<div class="kal-it trenn ara"><div class="kal-aeg"><b>${e.t}</b></div>
+    <div class="kal-sis"><b>🏀 Trenn</b><div class="kal-alam">Trenni pole · ${esc(e.ara)}</div></div></div>`;
+  const alam = [e.koht, e.markus].filter(Boolean).join(' · ');
+  return `<div class="kal-it trenn"><div class="kal-aeg"><b>${e.t}</b></div>
+    <div class="kal-sis"><b>🏀 Trenn</b><div class="kal-alam">${esc(alam)}</div>${e.hoiatus ? `<div class="kal-hoi">⚠️ ${esc(e.hoiatus)}</div>` : ''}</div></div>`;
+}
+
+function kalTulevasedHtml() {
+  const ev = kalTulevased();
+  if (!ev.length) return '<div class="tyhi">Tulevasi mänge pole.<br><small>Kinnitamata mängud ilmuvad siia, kui neil on kellaaeg.</small></div>';
+  let h = '', viimane = '';
+  ev.forEach(e => {
+    if (e.d !== viimane) { viimane = e.d; h += `<div class="kal-pv">${kalPaev(e.d)}</div>`; }
+    h += e.liik === 'm' ? kalMangHtml(e.m, false) : kalTrennHtml(e);
+  });
+  return h;
+}
+
+function kalTulemusedHtml() {
+  const n = Date.now();
+  const mangud = ((K && K.mangud) || []).filter(m => m.s || kAeg(m.d, m.t).getTime() + 3 * 3600e3 < n)
+    .sort((a, b) => kAeg(b.d, b.t) - kAeg(a.d, a.t));
+  if (!mangud.length) return '<div class="tyhi">Mänge pole veel mängitud.</div>';
+  return mangud.map(m => kalMangHtml(m, true)).join('');
+}
+
+function joonistaKalender() {
+  const el = $('kalender');
+  if (!K) { el.innerHTML = '<div class="tyhi">Laen kalendrit…</div>'; return; }
+  let h = `<div class="seg" id="kalSeg" style="margin:12px 0 0"><button data-t="tul" class="${kalTab === 'tul' ? 'on' : ''}" style="flex:1">Tulevased</button>
+    <button data-t="tulemused" class="${kalTab === 'tulemused' ? 'on' : ''}" style="flex:1">Tulemused</button></div>`;
+  if (K.puudub) h += '<div class="tyhi">Kalender pole veel seadistatud.<br><small>Lisa Apps Scripti Kalender.gs ja tee uus deploy-versioon.</small></div>';
+  else h += kalTab === 'tul' ? kalTulevasedHtml() : kalTulemusedHtml();
+  h += `<div class="kaart" style="margin-top:18px"><h3>📊 Liigade statistika</h3>
+    <div class="uuend" style="margin-bottom:6px">Tabelid ja mängijate statistika liigade lehtedel:</div>
+    <a class="kal-link" href="${RHL_URL}" target="_blank" rel="noopener">RHL (BC Forwards) ›</a>
+    <a class="kal-link" href="${BASKET_URL}" target="_blank" rel="noopener">Rahvaliiga (basket.ee) ›</a>
+    <div class="uuend" style="margin-top:6px">Trenniks pane end kirja Facebooki küsitluses.</div></div>`;
+  if (K.uuendatud) h += `<div class="uuend" style="text-align:center;margin:10px 0">Kalender uuendatud ${esc(K.uuendatud)}</div>`;
+  el.innerHTML = h;
+}
+
+/** Avalehe KPI-d: Trenne, Mänge + järgmine mäng/trenn. */
+function joonistaKpi() {
+  if (!D) return;
+  let h = [['Trenne', D.trenne], ['Mänge', D.mange]].map(x => `<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
+  const j = K && !K.puudub ? kalJargmine() : null;
+  if (j) {
+    const aeg = `${kalLuhikePaev(j.d)} ${j.t || ''}`.trim();
+    if (j.liik === 'm') {
+      const meie = K.meie || 'LakiLakid', kodu = j.m.h === meie;
+      h += `<div class="jarg" data-v="kalender"><small>Järgmine mäng</small><b>${esc(aeg)}</b><span>${esc(kodu ? j.m.g : j.m.h)} · ${kodu ? 'kodus' : 'võõrsil'}</span></div>`;
+    } else {
+      h += `<div class="jarg" data-v="kalender"><small>Järgmine trenn</small><b>${j.hoiatus ? '⚠️ ' : ''}${esc(aeg)}</b><span>${esc(j.koht || '')}${j.hoiatus ? ' · vaata kalendrit' : ''}</span></div>`;
+    }
+  } else if (K && !K.puudub) {
+    h += '<div class="jarg" data-v="kalender"><small>Järgmine</small><b>–</b><span>vaata kalendrit</span></div>';
+  }
+  $('kpi').innerHTML = h;
+}
+
+function kalUuenda() {
+  joonistaKpi();
+  if ($('v-kalender').classList.contains('aktiivne')) joonistaKalender();
+}
+
+function laeKalender() {
+  let vana = null;
+  try { vana = JSON.parse(localStorage.getItem(KAL_KEY)); } catch (e) { }
+  if (vana && vana.mangud) { K = vana; kalUuenda(); }
+  fetch(ANDMED_URL + '?kal=1', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(u => {
+      if (u && u.mangud) { K = u; try { localStorage.setItem(KAL_KEY, JSON.stringify(u)); } catch (e) { } }
+      else if (!K) K = { puudub: true, mangud: [] };   // Apps Script ei tunne veel ?kal=1 (vana deploy)
+      kalUuenda();
+    })
+    .catch(() => { if (!K) { K = { puudub: true, mangud: [] }; kalUuenda(); } });
 }
 
 // ---------------- ADMIN (trenni sisestus) ----------------
@@ -684,6 +888,11 @@ function initAdmin() {
     const r = e.target.closest('[data-n]'); if (!r) return;
     if (D.profiil[r.dataset.n]) avaProfiil(r.dataset.n); else toast('Profiil on TOP 25 mängijal');
   });
+  $('kalender').addEventListener('click', e => {
+    const b = e.target.closest('#kalSeg button'); if (!b) return;
+    kalTab = b.dataset.t; joonistaKalender();
+  });
+  $('kpi').addEventListener('click', e => { if (e.target.closest('.jarg')) vaade('kalender'); });
   $('admin').addEventListener('click', adminKlikk);
   $('admin').addEventListener('change', adminMuutus);
   $('admin').addEventListener('input', e => { if (e.target.dataset.a === 'sk') adminMuutus(e); });
@@ -709,8 +918,8 @@ function naita(andmed, vaade) {
   $('uuend').innerHTML = `Uuendatud ${D.uuendatud} · viimane trenn ${kp(D.viimane)}`;
   $('logo').classList.toggle('keerleb', !!vaade);
   peidaSplash();
-  $('kpi').innerHTML = [['Trenne', D.trenne], ['Mänge', D.mange], ['Hele–Tume', `${D.heleW}–${D.tumeW}`], ['Elo täpsus', pct(D.tapsus)]]
-    .map(x => `<div><b>${x[1]}</b><small>${x[0]}</small></div>`).join('');
+  if (!D.versioon || D.versioon < 3) $('uuend').innerHTML += '<br><span style="color:var(--hoiatus,#ffd966)">⚠️ Andmed on vanast koodist – käivita Sheetsis 📊 Uuenda statistika</span>';
+  joonistaKpi();
   if (!alustatud) { alustatud = true; init(); return; }
   const n = $('mangija').value;
   const nimed = Object.keys(D.profiil).sort((a, b) => D.profiil[a].k - D.profiil[b].k);
@@ -723,6 +932,7 @@ function naita(andmed, vaade) {
 let vana = null;
 try { vana = JSON.parse(localStorage.getItem('korvpall')); } catch (e) { }
 if (vana) naita(vana, true);
+laeKalender();
 fetch(ANDMED_URL, { cache: 'no-store' })
   .then(r => r.json())
   .then(uus => {
