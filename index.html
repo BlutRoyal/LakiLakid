@@ -51,6 +51,12 @@
   @keyframes vari { 0% { transform: scale(.55); opacity: .35; } 100% { transform: scale(1); opacity: 1; } }
   #splash h1 { font-size: 38px; }
   #splash .uuend { margin-top: -6px; }
+  #instBar { position: fixed; left: 12px; right: 12px; bottom: 76px; z-index: 50; display: none; align-items: center; gap: 10px;
+    background: var(--pind2, #222); border: 1px solid var(--oranz); border-radius: 12px; padding: 10px 12px; font-size: 13px; box-shadow: 0 4px 18px #000a; }
+  #instBar span { flex: 1; }
+  #instBar button { border: 0; border-radius: 8px; padding: 8px 12px; font: inherit; cursor: pointer; }
+  #instBar .jah { background: var(--oranz); color: #111; font-weight: 700; }
+  #instBar .ei { background: transparent; color: var(--tekst2); }
   .uuend { color: var(--tekst2); font-size: 12px; margin-top: 2px; }
 
   .kpi { display: flex; gap: 8px; margin-top: 12px; }
@@ -267,6 +273,7 @@
 
   <section class="vaade" id="v-ajalugu"><div id="ajalugu"></div></section>
 
+<div id="instBar"><span id="instTekst"></span><button class="jah" id="instJah">Installi</button><button class="ei" id="instEi">✕</button></div>
   <section class="vaade" id="v-admin"><div id="admin"></div></section>
 </main>
 
@@ -1076,6 +1083,30 @@ function naita(andmed, vaade) {
 let vana = null;
 try { vana = JSON.parse(localStorage.getItem('korvpall')); } catch (e) { }
 if (vana) naita(vana, true);
+
+// Installi rakenduseks (PWA): Android/Chrome pakub nuppu, iPhonis juhis
+(function () {
+  const bar = $('instBar'); if (!bar) return;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let peidetud = false; try { peidetud = localStorage.getItem('korvpall-inst') === '1'; } catch (e) { }
+  if (standalone || peidetud) return;
+  let sundmus = null;
+  const peida = jatk => { bar.style.display = 'none'; if (jatk) try { localStorage.setItem('korvpall-inst', '1'); } catch (e) { } };
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { });
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault(); sundmus = e;
+    $('instTekst').textContent = '📲 Lisa LakiLakid oma avaekraanile rakendusena';
+    $('instJah').style.display = ''; bar.style.display = 'flex';
+  });
+  window.addEventListener('appinstalled', () => peida(true));
+  $('instJah').onclick = () => { if (!sundmus) return; sundmus.prompt(); sundmus.userChoice.finally(() => { sundmus = null; peida(true); }); };
+  $('instEi').onclick = () => peida(true);
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !/crios|fxios/i.test(navigator.userAgent);
+  if (ios) setTimeout(() => {
+    $('instTekst').innerHTML = '📲 Rakenduseks: vajuta <b>Jaga</b> ⎙ → <b>Lisa avaekraanile</b>';
+    $('instJah').style.display = 'none'; bar.style.display = 'flex';
+  }, 4000);
+})();
 laeKalender();
 fetch(ANDMED_URL, { cache: 'no-store' })
   .then(r => r.json())
